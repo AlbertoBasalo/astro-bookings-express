@@ -1,5 +1,6 @@
 import express from 'express';
 import { rocketsRouter } from './routes/rockets.js';
+import { logger } from './utils/logger.js';
 
 const DEFAULT_PORT = 3000;
 
@@ -23,6 +24,6 @@ app.get('/health', (req, res) => {
 app.use('/rockets', rocketsRouter);
 
 app.listen(port, () => {
-  console.log(`Server listening on http://localhost:${port}`);
-  console.log(`Check health on http://localhost:${port}/health`);
+  logger.info('App', `Server listening on http://localhost:${port}`);
+  logger.info('App', `Check health on http://localhost:${port}/health`);
 });
