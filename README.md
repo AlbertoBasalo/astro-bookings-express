@@ -1,5 +1,7 @@
 # AstroBookings 
 
+> Express with TypeScript version
+
 A fictional space travel booking system used during training sessions and demos.
 
 A **backend API** for offering bookings to launches in rockets.
@@ -16,7 +18,7 @@ A **backend API** for offering bookings to launches in rockets.
 
 ---
 
-- [Repository at GitHub](https://github.com/AlbertoBasaloLabs/astro-bookings)
+- [Repository at GitHub](https://github.com/AIDDbot/astro-bookings-express)
 - Default branch: `main`
 
 - **Author**: [Alberto Basalo](https://albertobasalo.dev)
@@ -25,3 +27,43 @@ A **backend API** for offering bookings to launches in rockets.
   - [X](https://x.com/albertobasalo)
   - [LinkedIn](https://www.linkedin.com/in/albertobasalo/)
   - [GitHub](https://github.com/albertobasalo)
+
+---
+
+**Node + TypeScript Setup**
+- **Files:** See [package.json](package.json), [tsconfig.json](tsconfig.json), and [src/index.ts](src/index.ts).
+- **Dev server:** Starts with `tsx` and serves JSON on `/`.
+- **Scripts:** `dev`, `build`, `start`, `typecheck` defined in [package.json](package.json).
+
+**Quickstart**
+- **Install:**
+
+```bash
+npm install
+```
+
+- **Run dev:**
+
+```bash
+npm run dev
+```
+
+- **Build:**
+
+```bash
+npm run build
+```
+
+- **Start (built app):**
+
+```bash
+npm run start
+```
+
+- **Type-check only:**
+
+```bash
+npm run typecheck
+```
+
+The server listens on `http://localhost:3000` and responds with a small JSON payload. Configure the port via `PORT` env var.
