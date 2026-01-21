@@ -1,4 +1,5 @@
 import express from 'express';
+import rocketsRouter from './routes/rockets.js';
 
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -16,6 +17,8 @@ app.get('/health', (req, res) => {
     uptime: process.uptime()
   });
 });
+
+app.use('/rockets', rocketsRouter);
 
 app.listen(port, () => {
   console.log(`Server listening on http://localhost:${port}`);
