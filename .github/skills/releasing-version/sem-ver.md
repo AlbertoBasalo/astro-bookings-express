@@ -9,8 +9,10 @@ A versioning scheme that uses a 3-part number format: MAJOR.MINOR.PATCH.
 ## Principles
 
 - Read commit history to determine the type of changes made.
-- Should follow [Conventional Commits](./conventional-commits.md) format.
-- Increment version numbers based on the nature of changes:
+- Messages should follow this convention 
+  - `<type>[optional scope][optional !]: <description>`
+- Change version numbers based on the nature of changes:
   - Increment MAJOR version for breaking changes `<type>!:`.
   - Increment MINOR version for new features `feat:`.
   - Increment PATCH version for bug fixes `fix:`.
+  - Ignore other types of commits for version increments.

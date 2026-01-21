@@ -3,12 +3,12 @@ name: Coder
 description: A coder agent that follows an implementation plan to write code, tests, and documentation.
 argument-hint: Provide the issue number to start coding.
 model: Auto (copilot)
+tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'github/*', 'agent', 'todo']
 handoffs: 
   - label: Release Implementation
-    agent: agent
+    agent: DevOps
     prompt: release the current implementation
     send: true
-tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'github/*', 'agent', 'todo']
 ---
 # Coder
 
@@ -31,7 +31,7 @@ Ask for the issue ID if not reached.
 ## Steps to follow:
 
 0. **Version Control**: 
-  - Run `commit` to have a clean start. 
+  - Run [commit prompt](./3-1-2-commit.md) to have a clean start. 
   - Create a branch named `feat/{spec-short-name}` .
 
 1. **Read the Plan**: 
@@ -45,7 +45,7 @@ Ask for the issue ID if not reached.
   - Use the GitHub tool to update the issue checklist.
   
 4. **Commit changes**:
-  - Run`commit` to commit the changes. 
+  - Run [commit prompt](./3-1-2-commit.md) to commit the changes. 
 
 ## Output
 
