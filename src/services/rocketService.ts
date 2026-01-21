@@ -1,4 +1,5 @@
-import type { Rocket, CreateRocketRequest, UpdateRocketRequest, ValidationError, RocketRange } from '../types/rocket.js';
+import type { CreateRocketRequest, Rocket, RocketRange, UpdateRocketRequest, ValidationError } from '../types/rocket.js';
+import { logger } from '../utils/logger.js';
 
 const VALID_RANGES: readonly RocketRange[] = ['suborbital', 'orbital', 'moon', 'mars'] as const;
 const MIN_CAPACITY = 1;
@@ -42,8 +43,10 @@ class RocketService {
   }
 
   createRocket(data: CreateRocketRequest): Rocket {
+    logger.info('RocketService', 'Creating rocket', { name: data.name });
     const errors = this.validateRocketData(data);
     if (errors.length > 0) {
+      logger.error('RocketService', 'Validation failed', { errors });
       throw new Error(JSON.stringify(errors));
     }
 
@@ -55,20 +58,33 @@ class RocketService {
     };
 
     this.rockets.set(rocket.id, rocket);
+    logger.info('RocketService', 'Rocket created', { id: rocket.id });
     return rocket;
   }
 
   getAllRockets(): Rocket[] {
-    return Array.from(this.rockets.values());
+    logger.info('RocketService', 'Getting all rockets');
+    const rockets = Array.from(this.rockets.values());
+    logger.info('RocketService', 'Retrieved all rockets', { count: rockets.length });
+    return rockets;
   }
 
   getRocketById(id: string): Rocket | undefined {
-    return this.rockets.get(id);
+    logger.info('RocketService', 'Getting rocket by id', { id });
+    const rocket = this.rockets.get(id);
+    if (rocket) {
+      logger.info('RocketService', 'Rocket found', { id });
+    } else {
+      logger.warn('RocketService', 'Rocket not found', { id });
+    }
+    return rocket;
   }
 
   updateRocket(id: string, data: UpdateRocketRequest): Rocket {
+    logger.info('RocketService', 'Updating rocket', { id });
     const existingRocket = this.rockets.get(id);
     if (!existingRocket) {
+      logger.error('RocketService', 'Rocket not found for update', { id });
       throw new Error(ROCKET_NOT_FOUND_ERROR);
     }
 
@@ -80,6 +96,7 @@ class RocketService {
 
     const errors = this.validateRocketData(updatedData);
     if (errors.length > 0) {
+      logger.error('RocketService', 'Validation failed on update', { errors });
       throw new Error(JSON.stringify(errors));
     }
 
@@ -91,11 +108,19 @@ class RocketService {
     };
 
     this.rockets.set(id, updatedRocket);
+    logger.info('RocketService', 'Rocket updated', { id });
     return updatedRocket;
   }
 
   deleteRocket(id: string): boolean {
-    return this.rockets.delete(id);
+    logger.info('RocketService', 'Deleting rocket', { id });
+    const deleted = this.rockets.delete(id);
+    if (deleted) {
+      logger.info('RocketService', 'Rocket deleted', { id });
+    } else {
+      logger.warn('RocketService', 'Rocket not found for deletion', { id });
+    }
+    return deleted;
   }
 }
 
