@@ -1,4 +1,9 @@
-import type { Rocket, CreateRocketRequest, UpdateRocketRequest, ValidationError } from '../types/rocket.js';
+import type { Rocket, CreateRocketRequest, UpdateRocketRequest, ValidationError, RocketRange } from '../types/rocket.js';
+
+const VALID_RANGES: readonly RocketRange[] = ['suborbital', 'orbital', 'moon', 'mars'] as const;
+const MIN_CAPACITY = 1;
+const MAX_CAPACITY = 10;
+const ROCKET_NOT_FOUND_ERROR = 'Rocket not found';
 
 class RocketService {
   private rockets: Map<string, Rocket> = new Map();
@@ -15,22 +20,21 @@ class RocketService {
       errors.push({ field: 'name', message: 'Name is required' });
     }
 
-    const validRanges: string[] = ['suborbital', 'orbital', 'moon', 'mars'];
     if (data.range === undefined || data.range === null) {
       errors.push({ field: 'range', message: 'Range is required' });
-    } else if (!validRanges.includes(data.range)) {
+    } else if (!VALID_RANGES.includes(data.range)) {
       errors.push({ 
         field: 'range', 
-        message: `Range must be one of: ${validRanges.join(', ')}` 
+        message: `Range must be one of: ${VALID_RANGES.join(', ')}` 
       });
     }
 
     if (data.capacity === undefined || data.capacity === null) {
       errors.push({ field: 'capacity', message: 'Capacity is required' });
-    } else if (!Number.isInteger(data.capacity) || data.capacity < 1 || data.capacity > 10) {
+    } else if (!Number.isInteger(data.capacity) || data.capacity < MIN_CAPACITY || data.capacity > MAX_CAPACITY) {
       errors.push({ 
         field: 'capacity', 
-        message: 'Capacity must be an integer between 1 and 10 (inclusive)' 
+        message: `Capacity must be an integer between ${MIN_CAPACITY} and ${MAX_CAPACITY} (inclusive)` 
       });
     }
 
@@ -65,7 +69,7 @@ class RocketService {
   updateRocket(id: string, data: UpdateRocketRequest): Rocket {
     const existingRocket = this.rockets.get(id);
     if (!existingRocket) {
-      throw new Error('Rocket not found');
+      throw new Error(ROCKET_NOT_FOUND_ERROR);
     }
 
     const updatedData: CreateRocketRequest = {
