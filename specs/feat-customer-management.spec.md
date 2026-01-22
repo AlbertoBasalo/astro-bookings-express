@@ -2,7 +2,7 @@
 
 - **Reference**: [PRD](/PRD.md) FR3
 - **Issue**: [#3](https://github.com/AlbertoBasalo/astro-bookings-express/issues/3)
-- **Status**: Planned
+- **Status**: Completed
 
 ## Problem Description
 
