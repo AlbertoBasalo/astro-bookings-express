@@ -4,7 +4,11 @@ description: Writes the specification for a feature, bug fix, or enhancement.
 argument-hint: Provide a PRD or explain a requirement to write the specification.
 model: Auto (copilot)
 tools: ['read', 'edit', 'search', 'web', 'agent', 'todo']
-handoffs: 
+handoffs:
+  - label: Commit and keep
+    agent: Product Owner
+    prompt: commit the spec file to the repository
+    send: true 
   - label: Prepare the Implementation
     agent: Engineer
     prompt: Prepare the coding repository and plan the implementation
