@@ -2,7 +2,7 @@
 name: coding-express-api
 description: >
   Writes API endpoints with Express.js following layered architecture patterns.
-  Implements RESTful endpoints with validation, error handling, and business logic.
+  To be used for implementing RESTful endpoints with validation, error handling, and business logic.
 --- 
 
 # Writing an Express API

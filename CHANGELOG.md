@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-01-22
+
+### Added
+- Launch Scheduling API `/launches` with full CRUD operations
+  - POST `/launches` - Create launch schedule with validation
+  - GET `/launches` - List all launch schedules
+  - GET `/launches/:id` - Retrieve specific launch schedule
+  - PUT `/launches/:id` - Update launch schedule with revalidation
+  - DELETE `/launches/:id` - Remove launch schedule
+- Validation rules for launches:
+  - `rocketId` must reference an existing rocket
+  - `launchDateTime` must be a future ISO timestamp
+  - `price` must be positive
+  - `minPassengers` must be within `1..capacity`
+- Derived field `availableSeats` initialized from linked rocket capacity
+- End-to-end Playwright tests covering acceptance criteria
+
+### Changed
+- Documentation updates in PRD and ADD to reflect launch scheduling feature
+
+### Fixed
+- None
+
 ## [0.2.0] - 2024-12-19
 
 ### Added

@@ -21,6 +21,8 @@ Use terminal git commands as needed.
   - setup/dev instructions, 
   - folder structure are accurate.
 - [ ] Other relevant project files (`package.json` ... ).
+- [ ] [PRD.md](/PRD.md) and/or [specs](/specs) current features status (If any).
+- [ ] [ADD.md](/ADD.md) update/add architectural decisions (If any).
 
 ## Step 2: Generate Changelog
 

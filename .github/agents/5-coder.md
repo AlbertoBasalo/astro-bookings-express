@@ -42,12 +42,23 @@ If not provided, ask for the issue number or specification file before proceedin
 - The branch may be local or remote
 
 **During coding:**
+- Use the github tools to read the issue with the implementation plan 
+- Follow the plan at the issue body step by step
 - Think carefully before writing code in at least to approaches
 - Consider the simplest possible solution that meets the requirements
+
+**After coding:**
+- Ensure all coding tasks in the plan are completed
+- Use github tool to update the issue body, changing `- [ ]` to `- [x]` for completed tasks
+- Other tasks such as testing or documentation will be handled by other agents
+- Mark your work as done in the issue and/or specification
+- Commit the changes with a message summarizing the completed tasks
 
 ### Skills to use
 
 Apply relevant coding skills based on the technology stack specified in the requirements.
+
+- `coding-express-api`: Writes API endpoints with Express following layered architecture patterns
 
 ## Output checklist
 
