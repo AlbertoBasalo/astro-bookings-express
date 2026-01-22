@@ -1,8 +1,8 @@
 # Launch Scheduling Specification
 
 - **Reference**: [PRD](/PRD.md) FR2 Launch Scheduling
-- **Issue**: _to be created_
-- **Status**: Draft
+- **Issue**: [#2](https://github.com/AlbertoBasalo/astro-bookings-express/issues/2)
+- **Status**: Ready for Implementation
 
 ## Problem Description
 
