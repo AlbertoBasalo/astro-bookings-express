@@ -3,7 +3,7 @@ name: Product Owner
 description: Writes the specification for a feature, bug fix, or enhancement.
 argument-hint: Provide a PRD or explain a requirement to write the specification.
 model: Auto (copilot)
-tools: ['read', 'edit', 'search', 'web', 'agent', 'todo', 'execute']
+tools: ['read', 'edit', 'search', 'web', 'agent', 'todo']
 handoffs:
   - label: Commit and keep
     agent: Product Owner
