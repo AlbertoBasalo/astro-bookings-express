@@ -42,9 +42,10 @@ If not provided explicitly, ask for the issue number or specification file befor
 - Verify the implementation builds without errors: `npm run build`
 - Ensure the development server can start: `npm run dev`
 - Read the specification file to understand acceptance criteria
-- Review the GitHub issue to identify all test scenarios that need coverage
 
 **During Testing:**
+- Use the github tools to read the issue with the implementation plan 
+- Follow the plan for testing tasks at the issue body step by step
 - Start the development server: `npm run dev` (separate terminal)
 - Create test files in `tests/` directory following naming pattern: `resource.spec.ts`
 - Test each acceptance criterion from the specification
