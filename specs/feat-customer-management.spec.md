@@ -1,8 +1,8 @@
 # Customer Management Specification
 
 - **Reference**: [PRD](/PRD.md) FR3
-- **Issue**: {_to be created_}
-- **Status**: Draft
+- **Issue**: [#3](https://github.com/AlbertoBasalo/astro-bookings-express/issues/3)
+- **Status**: Planned
 
 ## Problem Description
 
