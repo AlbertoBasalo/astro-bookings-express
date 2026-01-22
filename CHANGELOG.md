@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-01-22
+
+### Added
+- Customer Management API `/customers` with full CRUD operations
+  - POST `/customers` - Create customer with email, name, and phone
+  - GET `/customers` - List all customers
+  - GET `/customers/:email` - Retrieve specific customer by email (URL-encoded)
+  - PUT `/customers/:email` - Update customer information
+  - DELETE `/customers/:email` - Remove customer record
+- Customer model with email as unique identifier (no auto-increment ID)
+- Comprehensive validation for customer data:
+  - Email format validation with regex pattern
+  - Email uniqueness validation
+  - Name length validation (2-100 characters)
+  - Phone format validation (international patterns)
+- URL-encoded email handling in route parameters
+- 24 comprehensive E2E Playwright tests covering all acceptance criteria
+- Support for partial updates on customer records
+- Idempotent delete operations
+
+### Changed
+- PRD updated to mark FR3 Customer Management as Implemented
+
+### Fixed
+- Email validation now properly rejects invalid patterns like '@@'
+
 ## [0.3.0] - 2026-01-22
 
 ### Added
