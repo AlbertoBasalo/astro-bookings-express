@@ -69,11 +69,29 @@ npm run typecheck
 The server listens on `http://localhost:3000` and responds with a small JSON payload. Configure the port via `PORT` env var.
 
 **API Endpoints**
+
+**System**
 - `GET /health` - Health check endpoint
+
+**Rockets**
 - `GET /rockets` - Retrieve all rockets
 - `GET /rockets/:id` - Retrieve a specific rocket by ID
 - `POST /rockets` - Create a new rocket (requires: name, range, capacity)
 - `PUT /rockets/:id` - Update an existing rocket
 - `DELETE /rockets/:id` - Delete a rocket
 
-See [specs/rockets.spec.md](specs/rockets.spec.md) for detailed API specification.
+**Launches**
+- `GET /launches` - Retrieve all launches
+- `GET /launches/:id` - Retrieve a specific launch by ID
+- `POST /launches` - Create a new launch (requires: rocketId, launchDateTime, price, minPassengers)
+- `PUT /launches/:id` - Update an existing launch
+- `DELETE /launches/:id` - Delete a launch
+
+**Customers**
+- `GET /customers` - Retrieve all customers
+- `GET /customers/:email` - Retrieve a specific customer by email (URL-encoded)
+- `POST /customers` - Create a new customer (requires: email, name, phone)
+- `PUT /customers/:email` - Update an existing customer
+- `DELETE /customers/:email` - Delete a customer
+
+See specifications in [specs/](specs/) folder for detailed API documentation.

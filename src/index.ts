@@ -1,4 +1,5 @@
 import express from 'express';
+import { customersRouter } from './routes/customers.js';
 import { launchesRouter } from './routes/launches.js';
 import { rocketsRouter } from './routes/rockets.js';
 import { logger } from './utils/logger.js';
@@ -25,6 +26,8 @@ app.get('/health', (req, res) => {
 app.use('/rockets', rocketsRouter);
 
 app.use('/launches', launchesRouter);
+
+app.use('/customers', customersRouter);
 
 app.listen(port, () => {
   logger.info('App', `Server listening on http://localhost:${port}`);

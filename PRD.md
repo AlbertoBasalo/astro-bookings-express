@@ -43,7 +43,7 @@ Out of scope for initial phase:
 ### FR3 Customer Management
 - **Description**: The system maintains customer records identified by email, including name and phone number for booking purposes.
 - **Priority**: High
-- **Status**: NotStarted
+- **Status**: Implemented
 
 ### FR4 Booking Creation
 - **Description**: Customers can book one or more seats on a launch, with validation against rocket capacity and available seats.
