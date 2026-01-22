@@ -5,6 +5,10 @@ argument-hint: Provide a PRD to start the architectural design.
 model: Auto (copilot)
 tools: ['read', 'edit', 'search', 'web', 'agent', 'todo']
 handoffs: 
+  - label: Commit documentation
+    agent: Architect
+    prompt: /commit the ADD.md and AGENTS.md files to the repository
+    send: true
   - label: Specify a Feature
     agent: Product Owner
     prompt: Specify the first most priority NotStarted feature from the PRD
