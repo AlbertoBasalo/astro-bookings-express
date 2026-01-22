@@ -30,6 +30,7 @@ Work with the changes and history of the current git branch.
 - **During**: 
   - Update or create documentation files as needed. 
   - Generate changelogs and tags for the release. 
+  - Mark 
 - **After**: Ensure all changes are documented and merged into the default branch.
 
 ### Skills to use
