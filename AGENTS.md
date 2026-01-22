@@ -67,5 +67,6 @@ npm run typecheck
 - Sacrifice grammar for conciseness in responses.
 - This is a windows environment using git bash terminal.
 - My default branch is `main`.
+- Remote repo URL is `https://github.com/AlbertoBasalo/astro-bookings-express`
 - Server runs on `http://localhost:3000` (configurable via PORT env var).
 - Node.js version: >=18.18 required.

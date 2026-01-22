@@ -18,7 +18,7 @@ A **backend API** for offering bookings to launches in rockets.
 
 ---
 
-- [Repository at GitHub](https://github.com/AIDDbot/astro-bookings-express)
+- [Repository at GitHub](https://github.com/AlbertoBasalo/astro-bookings-express)
 - Default branch: `main`
 
 - **Author**: [Alberto Basalo](https://albertobasalo.dev)
