@@ -2,8 +2,9 @@
 
 - **Reference**: [PRD](/PRD.md) FR2 Launch Scheduling
 - **Issue**: [#2](https://github.com/AlbertoBasalo/astro-bookings-express/issues/2)
-- **Branch**: [feat/launch-scheduling](https://github.com/AlbertoBasalo/astro-bookings-express/tree/feat/launch-scheduling)
-- **Status**: Ready for Implementation
+- **Branch**: [main](https://github.com/AlbertoBasalo/astro-bookings-express/tree/main)
+- **Status**: Released
+- **Version**: 0.3.0 (2026-01-22)
 
 ## Problem Description
 

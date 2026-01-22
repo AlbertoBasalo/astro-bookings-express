@@ -72,7 +72,7 @@ AstroBookings follows a **layered monolithic architecture** with clear separatio
 │  ┌───────────────────────────────────────────┐  │
 │  │  Routes Layer                             │  │
 │  │  - Health endpoints (/, /health)          │  │
-│  │  - Resource routes (/rockets)             │  │
+│  │  - Resource routes (/rockets, /launches)  │  │
 │  └──────────────┬────────────────────────────┘  │
 └─────────────────┼───────────────────────────────┘
                   │
@@ -193,7 +193,8 @@ DELETE /rockets/:id
 src/
 ├── index.ts           # Application entry point and Express setup
 ├── routes/            # HTTP layer - one file per resource
-│   └── rockets.ts     # Rocket endpoints
+│   ├── rockets.ts     # Rocket endpoints
+│   └── launches.ts    # Launch endpoints
 ├── services/          # Business logic - one service per domain
 │   └── rocketService.ts
 ├── types/             # Type definitions - one file per domain
@@ -203,10 +204,12 @@ src/
 
 tests/                 # End-to-end tests mirror routes
 ├── rockets.spec.ts    # Test all rocket scenarios
+├── launches.spec.ts   # Test all launch scenarios
 └── smoke.spec.ts      # Basic health checks
 
 specs/                 # Specifications for each resource
-└── rockets.spec.md    # Human-readable acceptance criteria
+├── rockets.spec.md                 # Rocket acceptance criteria
+└── feat-launch-scheduling.spec.md  # Launch scheduling acceptance criteria
 ```
 
 ## Architecture Decisions Record (ADR)

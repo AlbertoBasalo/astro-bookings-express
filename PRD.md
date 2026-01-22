@@ -35,7 +35,10 @@ Out of scope for initial phase:
 ### FR2 Launch Scheduling
 - **Description**: System operators can schedule launches for specific rockets with pricing, dates, and minimum passenger thresholds.
 - **Priority**: High
-- **Status**: NotStarted
+- **Status**: Implemented
+	- Endpoints: `/launches` with create (POST), list (GET), detail (GET /:id), update (PUT /:id), and delete (DELETE /:id)
+	- Validation: future `launchDateTime`, positive `price`, `minPassengers` within rocket capacity, and valid `rocketId`
+	- Derived fields: `availableSeats` initialized to linked rocket capacity
 
 ### FR3 Customer Management
 - **Description**: The system maintains customer records identified by email, including name and phone number for booking purposes.
