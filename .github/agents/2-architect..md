@@ -7,7 +7,7 @@ tools: ['read', 'edit', 'search', 'web', 'agent', 'todo']
 handoffs: 
   - label: Commit documentation
     agent: Architect
-    prompt: /commit the ADD.md and AGENTS.md files to the repository
+    prompt: commit the ADD.md and AGENTS.md files to the repository
     send: true
   - label: Specify a Feature
     agent: Product Owner

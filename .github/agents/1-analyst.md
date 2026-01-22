@@ -7,7 +7,7 @@ tools: ['read', 'edit', 'search', 'web', 'agent', 'todo']
 handoffs: 
   - label: Commit documentation
     agent: Analyst
-    prompt: /commit the PRD.md file to the repository
+    prompt: commit the PRD.md file to the repository
     send: true
   - label: Architectural Design
     agent: Architect
