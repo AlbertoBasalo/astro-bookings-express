@@ -3,7 +3,7 @@ import { logger } from '../utils/logger.js';
 
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 100;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PHONE_REGEX = /^\+?[\d\s\-()]+$/;
 const CUSTOMER_NOT_FOUND_ERROR = 'Customer not found';
 const EMAIL_EXISTS_ERROR = 'Email already exists';
@@ -17,7 +17,7 @@ class CustomerService {
     if (data.email !== undefined) {
       if (data.email === null || data.email.trim() === '') {
         errors.push({ field: 'email', message: 'Email is required' });
-      } else if (!EMAIL_REGEX.test(data.email.trim())) {
+      } else if (!EMAIL_REGEX.test(data.email.trim()) || data.email.includes('@@')) {
         errors.push({ field: 'email', message: 'Invalid email format' });
       } else if (isUpdate && currentEmail !== data.email && this.customers.has(data.email.trim())) {
         errors.push({ field: 'email', message: EMAIL_EXISTS_ERROR });
