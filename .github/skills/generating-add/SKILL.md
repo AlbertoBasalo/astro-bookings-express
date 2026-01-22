@@ -31,6 +31,7 @@ Ask only critical questions where the initial prompt is ambiguous. Focus on:
 - Draft the ADD following the [ADD template](ADD.md)
 - Ensure each section is filled out with relevant information.
 - Keep the document concise, aiming for clarity and brevity.
+- Put a TOC at the start of the document.
 
 ### Step 3: Drafting the AGENTS.md
 
@@ -43,6 +44,7 @@ Ask only critical questions where the initial prompt is ambiguous. Focus on:
   
 ### Step 4: Review and Finalize
 
-- [ ] Review the documents for completeness and accuracy.
-- [ ] Write the final ADD to root folder with `ADD.md` name.
-- [ ] Update or create the `AGENTS.md` file in the root folder.
+- Review the documents for completeness and accuracy.
+- Write the final ADD to root folder with `ADD.md` name.
+- Update or create the `AGENTS.md` file in the root folder. Keep it concise.
+- AGENTS.md must be a succinct summary (<100 sentences, <100 characters each).  

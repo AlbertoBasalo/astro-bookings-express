@@ -2,6 +2,9 @@
 
 {One short paragraph summary of the project.}
 
+### Table of Contents
+{Generate a Table of Contents based on the sections below.}
+
 ## Stack and tooling
 
 ### Technology Stack
