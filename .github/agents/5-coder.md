@@ -47,7 +47,7 @@ If not provided, ask for the issue number or specification file before proceedin
 - Think carefully before writing code in at least to approaches
 - Consider the simplest possible solution that meets the requirements
 
-** After coding:**
+**After coding:**
 - Ensure all coding tasks in the plan are completed
 - Other tasks such , testing or documentation will be handled by other agents
 - Mark your work as done in the issue and/or specification
@@ -56,6 +56,8 @@ If not provided, ask for the issue number or specification file before proceedin
 ### Skills to use
 
 Apply relevant coding skills based on the technology stack specified in the requirements.
+
+- `coding-express-api`: Writes API endpoints with Express following layered architecture patterns
 
 ## Output checklist
 
