@@ -2,19 +2,24 @@
 
 > Express with TypeScript version
 
-A fictional space travel booking system used during training sessions and demos.
+A **backend API** for offering bookings for rocket launches.
 
-A **backend API** for offering bookings to launches in rockets.
+- Launches are scheduled for specific rockets, with pricing and minimum passenger thresholds.
 
-- Launches are scheduled for specific rockets with pricing and minimum passenger thresholds.
-- Rockets have limited seats; launch requests validate against rocket capacity.
+- Rockets have limited seats; launch requests are validated against rocket capacity.
+
 - Launch status lifecycle: scheduled → confirmed → successful, or cancellation/suspension paths.
-- A customer will be identified by their email address, having a name, and phone number.
-- One customer can book multiple seats on a launch, but cannot exceed the available seats.
-- Customers will be billed upon booking, and payments will be processed through a mock gateway.
 
+- A customer is identified by their email address and has a name and phone number.
+
+- One customer can book multiple seats on a launch but cannot exceed the available seats.
+
+- Customers are billed upon booking, and payments are processed through a mock gateway.
+
+> [!WARNING]
+> AstroBookings is a fictional space travel company.
 > The system is designed for demonstration and training purposes. 
-> > Not for production use; no security nor db needed at initial stage.
+> Not for production use; no security or database is required at the initial stage.
 
 ---
 
