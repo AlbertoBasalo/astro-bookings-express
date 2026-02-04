@@ -5,7 +5,7 @@ description: >
   To be used for planning the implementation of feature specifications.
 ---
 
-# Plan Specifications
+# Generate Plan Skill
 
 Write a detailed implementation plan for a given feature specification.
 
