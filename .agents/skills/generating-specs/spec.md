@@ -1,8 +1,6 @@
 # Short name Specification
-
-- **Reference**: [PRD](/PRD.md) {List of FR or TR numbers}.
-- **Issue**: {_to be created_[#ID](URL to the issue)}
-- **Status**: Draft{Could be Draft, Planned, In Progress, Completed, etc.}
+- **Type**: {feat/bug/chore}
+- **Status**: Draft{Draft, Planned, Coded, Verified }
 
 ## Problem Description
 
