@@ -29,6 +29,9 @@
 .                         # Project root  
 ├── AGENTS.md             # This file with instructions for AI agents
 ├── .agents/              # Agents related files (skills, specs, etc)
+|   ├── PRD.md            # Product Requirements Document
+|   ├── ADD.md            # Architectural Design Document 
+|   └── skills/           # Custom agent skills
 ├── CHANGELOG.md          # Project history and changelog
 ├── README.md             # Human friendly project overview
 ├── src/                  # Source code folder

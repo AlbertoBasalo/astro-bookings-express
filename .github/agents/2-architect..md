@@ -28,17 +28,9 @@ Update or create the AGENTS.md as needed.
 
 ## Context
 
-The provided PRD.
-
-Write the ADD in a markdown file at `.agents/ADD.md`.
-
-Generate or update the AGENTS.md file in the root folder.
+The provided Product Requirement Document (PRD).
 
 ### Skills to use
 
 - `generating-add` : Generates an Architectural Design Document (ADD) for software projects.
     
-## Output Checklist
-
-- [ ] A comprehensive A.D.D. at `.agents/ADD.md`
-- [ ] An updated `AGENTS.md` to help implement the architecture

@@ -64,4 +64,8 @@ Read and follow any specific [PRD template](PRD.md) to generate the document.
 - [ ] On brownfield projects, update PRD feature status.
   - Mark existing features as Implemented.
   - New features should be marked as NotStarted. 
-- [ ] Write the final PRD at the specified location and file.
+- [ ] Write the final PRD at `.agents/PRD.md`.
+
+## Output Checklist
+
+- [ ] A comprehensive P.R.D. at `.agents/PRD.md`.

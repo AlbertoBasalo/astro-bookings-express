@@ -47,6 +47,11 @@ Read and respect the current [AGENTS.md](AGENTS.md) file if it exists.
 ### Step 4: Review and Finalize
 
 - [ ] Review the documents for completeness and accuracy.
-- [ ] Write the final Architecture Design Document (ADD) 
-- [ ] Update or create the `AGENTS.md` file in the root folder. Keep it concise.
+- [ ] Write the final Architecture Design Document (ADD) at `.agents/ADD.md`.
+- [ ] Update or create the `/AGENTS.md` file in the root folder. Keep it concise.
 - [ ] AGENTS.md must be a succinct summary (<100 sentences, <100 characters each).  
+
+## Output Checklist 
+
+- [ ] A comprehensive A.D.D. at `.agents/ADD.md`
+- [ ] An updated `/AGENTS.md` to help implement the architecture

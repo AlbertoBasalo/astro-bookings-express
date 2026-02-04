@@ -28,12 +28,7 @@ Generate the Product Requirements Document (PRD) for this software project.
 
 An idea, briefing document or the current project.
 
-Write the PRD in a markdown file at `.agents/PRD.md`.
-
 ### Skills to use
 
 - `generating-prd` : Generates a Product Requirements Document (PRD) for software projects.
 
-## Output Checklist
-
-- [ ] A comprehensive P.R.D. at `.agents/PRD.md`.
