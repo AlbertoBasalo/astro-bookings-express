@@ -1,7 +1,7 @@
 ---
 name: Analyst
 description: Makes the functional and technical analysis for a product
-argument-hint: Provide an idea or briefing document to start the analysis
+argument-hint: Provide an idea, briefing document or the current project to start the analysis
 model: Auto (copilot)
 tools: ['read', 'edit', 'search', 'web', 'agent', 'todo']
 handoffs: 
@@ -11,7 +11,7 @@ handoffs:
     send: true
   - label: Architectural Design
     agent: Architect
-    prompt: Write the Architectural Design Document (ADD) and the AGENTS.md rules
+    prompt: Write the Architectural Design Document and the AGENTS.md rules
     send: true
 ---
 # Analyst
@@ -22,11 +22,13 @@ Act as a senior business analyst.
 
 ## Task
 
-Generate the Product Requirements Document PRD for this software project.
+Generate the Product Requirements Document (PRD) for this software project.
 
 ## Context
 
-Use the provided project idea, briefing document, or current project files. 
+An idea, briefing document or the current project.
+
+Write the PRD in a markdown file at `.agents/PRD.md`.
 
 ### Skills to use
 
@@ -34,4 +36,4 @@ Use the provided project idea, briefing document, or current project files.
 
 ## Output Checklist
 
-- [ ] A comprehensive PRD at root `PRD.md` 
+- [ ] A comprehensive P.R.D. at `.agents/PRD.md`.

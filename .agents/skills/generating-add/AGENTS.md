@@ -28,15 +28,23 @@
 ```text
 .                         # Project root  
 ├── AGENTS.md             # This file with instructions for AI agents
+├── .agents/              # Agents related files (skills, specs, etc)
+├── CHANGELOG.md          # Project history and changelog
+├── README.md             # Human friendly project overview
+├── src/                  # Source code folder
+├── tests/                # Test files
 └── other_files/          # Other relevant files and folders 
 ```
 
 ## Environment
+- This is a windows environment using git bash terminal. 
+- Default git branch is `main` unless specified otherwise.
+- Mind the available **agent skills** when performing tasks.
+
+## Behavior Guidelines
 - Code and documentation must be in English.
 - Chat responses must be in the language of the user prompt.
 - Sacrifice grammar for conciseness when needed to fit response limits.
-- This is a windows environment using git bash terminal. 
-- Mind the available **agent skills** when performing tasks.
 - When using templates, ensure to replace {placeholders} with actual values.
 
 ### Naming Conventions
@@ -51,5 +59,3 @@ Use this table to determine the prefixes :
 | bug-<slug>  | bug           | fix/<slug>    | fix:    |
 | chore-<slug>| chore         | chore/<slug>  | chore:  |
 
-
-Default git branch is `master` unless specified otherwise.

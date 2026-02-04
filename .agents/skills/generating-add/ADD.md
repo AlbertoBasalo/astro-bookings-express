@@ -1,6 +1,6 @@
 # {Product name} Architectural Design Document
 
-{One short paragraph summary of the project.}
+{One sentence summary of the product.}
 
 ### Table of Contents
 {Generate a Table of Contents based on the sections below.}
@@ -18,9 +18,7 @@
 
 {describe the overall system architecture} 
 
-{list the main components and their interactions}
-
-{add an overall architecture diagram following C4 model or similar}
+{add an overall architecture diagram following C4 model or similar in mermaid syntax}
 
 ## Software Architecture
 

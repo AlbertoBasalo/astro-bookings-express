@@ -28,9 +28,11 @@ Update or create the AGENTS.md as needed.
 
 ## Context
 
-Use the provided PRD.
-Read and respect the current AGENTS.md file if it exists.
-Read current project files to understand the existing architecture.
+The provided PRD.
+
+Write the ADD in a markdown file at `.agents/ADD.md`.
+
+Generate or update the AGENTS.md file in the root folder.
 
 ### Skills to use
 
@@ -38,5 +40,5 @@ Read current project files to understand the existing architecture.
     
 ## Output Checklist
 
-- [ ] A comprehensive A.D.D. at `ADD.md`
+- [ ] A comprehensive A.D.D. at `.agents/ADD.md`
 - [ ] An updated `AGENTS.md` to help implement the architecture
