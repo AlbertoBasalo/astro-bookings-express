@@ -1,8 +1,6 @@
 ---
 name: generating-add
-description: > 
-  Generates an Architecture Design Document (ADD) and an AGENTS.md for software projects.
-  To be used when designing a product architecture and agents instructions.
+description: "Generates an Architecture Design Document (ADD) and an AGENTS.md for software projects. To be used when designing a product architecture and agents instructions."
 --- 
 # Generating an ADD
 

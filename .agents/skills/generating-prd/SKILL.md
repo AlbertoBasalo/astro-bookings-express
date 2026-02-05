@@ -1,8 +1,6 @@
 ---
 name: generating-prd
-description: > 
-  Generates a Product Requirements Document (PRD) for software projects.
-  To be used when analyzing a project to create a PRD.
+description: "Generates a Product Requirements Document (PRD) for software projects. To be used when analyzing a project to create a PRD."
 --- 
 # Generating a PRD
 

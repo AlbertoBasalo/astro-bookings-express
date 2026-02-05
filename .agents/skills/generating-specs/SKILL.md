@@ -1,8 +1,6 @@
 ---
 name: generating-specs
-description: > 
-  Writes the specification with problem definition, solution outline, and acceptance criteria.
-  To be used to specify a feature, bug correction, or enhancement.
+description: "Writes the specification with problem definition, solution outline, and acceptance criteria. To be used to specify a feature, bug correction, or enhancement."
 ---
 
 # Generating Specs Skill

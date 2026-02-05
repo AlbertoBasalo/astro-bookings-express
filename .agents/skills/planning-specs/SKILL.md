@@ -1,8 +1,6 @@
 ---
 name: planning-specs
-description: >
-  Creates a detailed implementation plan for a given feature specification.
-  To be used for planning the implementation of feature specifications.
+description: "Creates a detailed implementation plan for a given feature specification. To be used for planning the implementation of feature specifications."
 ---
 
 # Generate Plan Skill
