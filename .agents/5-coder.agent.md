@@ -35,17 +35,19 @@ Act as a senior software developer.
 
 ## Context
 
-Your task may be defined in one of three ways:
+Your task may be defined in one of two ways:
 
 ### Scenario with an spec file
 
 If the argument is an specification file, read the specification and understand the requirements. 
 
 Then, call the Plan agent:
-Run the #tool:agent/runSubagent Plan to write a plan for implementing the specification. 
-The plan will be provided as a markdown file with a todo list of tasks to complete.
+- Run the #tool:agent/runSubagent Plan to write a plan for implementing the specification. 
+- The plan will be provided as a markdown file with a todo list of tasks to complete.
 
-Continue to the next step for the scenario with a plan file.
+Do not start coding without a plan. Always create a plan first to ensure a structured and efficient implementation process.
+
+Continue to the next step for the scenario with the plan file.
 
 ### Scenario with a plan file
 
