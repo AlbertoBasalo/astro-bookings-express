@@ -1,8 +1,6 @@
 ---
 name: coding-express-api
-description: >
-  Writes API endpoints with Express.js following layered architecture patterns.
-  To be used for implementing RESTful endpoints with validation, error handling, and business logic.
+description: "Writes API endpoints with Express.js following layered architecture patterns.To be used for implementing RESTful endpoints with validation, error handling, and business logic."
 --- 
 
 # Writing an Express API
@@ -41,7 +39,7 @@ src/
 ## Routes Layer
 
 ### File Naming
-- Use kebab-case: `rockets.ts`, `astronauts.ts`
+- Use kebab-case: `rockets.ts`, `launches.ts`
 - One route file per resource
 - Use `.ts` extension (no `.routes` suffix needed)
 
@@ -80,7 +78,7 @@ res.status(400).json({
 ## Services Layer
 
 ### File Naming
-- Use kebab-case with `.service` suffix: `rocket.service.ts`, `astronaut.service.ts`
+- Use kebab-case with `.service` suffix: `rocket.service.ts`, `launch.service.ts`
 - One service class per domain
 
 ### Service Pattern
@@ -103,7 +101,7 @@ See [service.ts](./service.ts) template for complete example implementation.
 ## Types Layer
 
 ### File Naming
-- Use kebab-case: `rocket.ts`, `astronaut.ts`
+- Use kebab-case: `rocket.ts`, `launch.ts`
 - One type file per domain
 
 ### Type Definitions
@@ -176,6 +174,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/rockets', rocketsRouter);
+app.use('/launches', launchesRouter);
 
 app.listen(PORT, () => {
   logger.info('Server', `Running on port ${PORT}`);
