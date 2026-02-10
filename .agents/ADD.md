@@ -4,21 +4,35 @@ Backend API for a fictional space travel booking system demonstrating RESTful AP
 
 ## Table of Contents
 
-- [Stack and tooling](#stack-and-tooling)
-  - [Technology Stack](#technology-stack)
-  - [Development Tools](#development-tools)
-  - [Development Workflow](#development-workflow)
-- [Systems Architecture](#systems-architecture)
-  - [Overview](#overview)
-  - [System Components](#system-components)
-  - [Component Interactions](#component-interactions)
-- [Software Architecture](#software-architecture)
-  - [Architecture Pattern: Layered Architecture](#architecture-pattern-layered-architecture)
-  - [Design Patterns](#design-patterns)
-  - [Data Flow](#data-flow)
-  - [Testing Architecture](#testing-architecture)
-  - [Folder Structure Philosophy](#folder-structure-philosophy)
-- [Architecture Decisions Record (ADR)](#architecture-decisions-record-adr)
+- [AstroBookings Architectural Design Document](#astrobookings-architectural-design-document)
+  - [Table of Contents](#table-of-contents)
+  - [Stack and tooling](#stack-and-tooling)
+    - [Technology Stack](#technology-stack)
+    - [Development Tools](#development-tools)
+    - [Development Workflow](#development-workflow)
+  - [Systems Architecture](#systems-architecture)
+    - [Overview](#overview)
+    - [System Components](#system-components)
+    - [Component Interactions](#component-interactions)
+  - [Software Architecture](#software-architecture)
+    - [Architecture Pattern: Layered Architecture](#architecture-pattern-layered-architecture)
+    - [Design Patterns](#design-patterns)
+    - [Data Flow](#data-flow)
+    - [Testing Architecture](#testing-architecture)
+      - [E2E Tests (Playwright)](#e2e-tests-playwright)
+      - [Unit Tests (Vitest)](#unit-tests-vitest)
+      - [Mocking Strategy](#mocking-strategy)
+      - [Testing Pyramid](#testing-pyramid)
+      - [Test Organization](#test-organization)
+  - [Architecture Decisions Record (ADR)](#architecture-decisions-record-adr)
+    - [ADR 1: In-Memory Storage Only](#adr-1-in-memory-storage-only)
+    - [ADR 2: Layered Monolithic Architecture](#adr-2-layered-monolithic-architecture)
+    - [ADR 3: TypeScript Strict Mode with Explicit Types](#adr-3-typescript-strict-mode-with-explicit-types)
+    - [ADR 4: Express 5 with Native Async Support](#adr-4-express-5-with-native-async-support)
+    - [ADR 5: End-to-End Testing with Playwright](#adr-5-end-to-end-testing-with-playwright)
+    - [ADR 6: No Authentication or Authorization](#adr-6-no-authentication-or-authorization)
+    - [ADR 7: Resource-Based Folder Organization](#adr-7-resource-based-folder-organization)
+    - [ADR 8: Custom Logger Utility Instead of Framework](#adr-8-custom-logger-utility-instead-of-framework)
 
 ## Stack and tooling
 
@@ -191,6 +205,221 @@ DELETE /rockets/:id
   → Router extracts ID parameter
   → Service removes from Map
   → Returns 204 No Content
+### Testing Architecture
+
+**Dual Testing Strategy:**
+
+AstroBookings implements a complementary dual testing approach to ensure both integration correctness and business logic reliability:
+
+**1. End-to-End Tests (Playwright)**
+- **Purpose**: Validate complete HTTP request/response cycles and API contracts
+- **Scope**: Full stack integration from HTTP request to response
+- **Location**: `tests/*.spec.ts` (separate directory)
+- **When to Use**: Testing route handlers, status codes, HTTP flows, acceptance criteria
+- **Pattern**: 
+  ```typescript
+  test('should create rocket with valid data', async ({ request }) => {
+    const response = await request.post('/rockets', {
+      data: { name: 'Falcon 9', capacity: 100, status: 'active' }
+    });
+    expect(response.status()).toBe(201);
+    const rocket = await response.json();
+    expect(rocket.name).toBe('Falcon 9');
+  });
+  ```
+
+**2. Unit Tests (Vitest)**
+- **Purpose**: Test service layer business logic in complete isolation
+- **Scope**: Individual service methods, validation rules, error handling, state management
+- **Location**: `src/services/*.spec.ts` (colocated with services)
+- **When to Use**: Testing validation logic, CRUD operations, business rules, error conditions
+- **Pattern**: Arrange-Act-Assert with mocking
+  ```typescript
+  describe('RocketService validation', () => {
+    it('should reject empty rocket name', () => {
+      const service = new RocketService();
+      expect(() => service.create({ name: '', capacity: 100, status: 'active' }))
+        .toThrow('Rocket name cannot be empty');
+    });
+  });
+  ```
+
+**Test Responsibilities by Layer:**
+
+| Layer | E2E Tests (Playwright) | Unit Tests (Vitest) |
+|-------|------------------------|---------------------|
+| Routes | ✓ HTTP status codes<br>✓ Request parsing<br>✓ Response formatting | ✗ (tested via E2E) |
+| Services | ✓ Integration behavior | ✓ Business logic<br>✓ Validation rules<br>✓ Error handling<br>✓ State management |
+| Types | ✓ Contract validation | ✗ (compile-time) |
+
+**Mocking Strategy:**
+
+Unit tests mock service dependencies to maintain isolation:
+
+```typescript
+// Example: LaunchService unit test mocks RocketService
+class MockRocketService {
+  private rockets = new Map<string, Rocket>();
+  
+  create(data: CreateRequest): Rocket {
+    const rocket: Rocket = { id: `rocket-${Date.now()}`, ...data };
+    this.rockets.set(rocket.id, rocket);
+    return rocket;
+  }
+  
+  findById(id: string): Rocket {
+    const rocket = this.rockets.get(id);
+    if (!rocket) throw new Error(`Rocket not found: ${id}`);
+    return rocket;
+  }
+}
+
+describe('LaunchService', () => {
+  let launchService: LaunchService;
+  let mockRocketService: MockRocketService;
+  
+  beforeEach(() => {
+    mockRocketService = new MockRocketService();
+    launchService = new LaunchService(mockRocketService);
+  });
+  
+  it('should validate rocket exists', () => {
+    const validRequest = {
+      rocketId: 'nonexistent',
+      launchDate: '2025-06-01',
+      minPassengers: 50,
+      pricePerSeat: 1000000
+    };
+    
+    expect(() => launchService.create(validRequest))
+      .toThrow('Rocket not found');
+  });
+});
+```
+
+**Testing Pyramid:**
+
+```
+       /\
+      /  \       E2E Tests (Playwright)
+     /____\      - Test HTTP contracts
+    /      \     - Acceptance criteria
+   /        \    - Integration flows
+  /__________\   
+ /            \  Unit Tests (Vitest)
+/______________\ - Service logic
+                 - Validation rules
+                 - Business rules
+                 - Error handling
+```
+
+**Why Both?**
+- **Unit Tests**: Fast feedback on business logic changes, precise error messages, easy to debug
+- **E2E Tests**: Confidence in API contracts, validates full stack behavior, matches acceptance criteria
+- **Together**: Unit tests catch logic bugs during development; E2E tests catch integration issues before deployment
+
+**Test Organization:**
+- E2E test files mirror route files: `routes/rockets.ts` → `tests/rockets.spec.ts`
+- Unit test files are colocated: `services/rocketService.ts` → `services/rocketService.spec.ts`
+- Both use descriptive test names: `'should reject empty rocket name'` over `'test1'`
+- Tests document expected behavior and serve as living examples
+
+### Testing Architecture
+
+AstroBookings implements a **dual testing strategy** that covers both integration (E2E) and isolation (unit) perspectives:
+
+#### E2E Tests (Playwright)
+**Purpose**: Validate HTTP API contracts and full request/response cycles
+- **Location**: `tests/*.spec.ts` (separate directory)
+- **Scope**: Routes → Services → Types integration
+- **Focus**: HTTP status codes, request/response formats, acceptance criteria
+- **Run**: `npm run test` or `npm run test:ui`
+- **Pattern**: Real HTTP requests against running server
+
+**Example E2E Test Structure:**
+```typescript
+// tests/rockets.spec.ts
+test('POST /rockets creates new rocket', async ({ request }) => {
+  const response = await request.post('/rockets', {
+    data: { name: 'Falcon 9', range: 'orbital', capacity: 7 }
+  });
+  expect(response.status()).toBe(201);
+  const rocket = await response.json();
+  expect(rocket.id).toBeDefined();
+});
+```
+
+#### Unit Tests (Vitest)
+**Purpose**: Validate service layer business logic in isolation
+- **Location**: `src/services/*.spec.ts` (colocated with services)
+- **Scope**: Service methods, validation logic, state management
+- **Focus**: Business rules, error handling, edge cases, boundary conditions
+- **Run**: `npm run test:unit` or `npm run test:dev` (watch mode)
+- **Pattern**: Direct service instantiation with mocked dependencies
+
+**Example Unit Test Structure:**
+```typescript
+// src/services/rocketService.spec.ts
+describe('RocketService', () => {
+  let service: RocketService;
+  
+  beforeEach(() => {
+    service = new RocketService();
+  });
+
+  describe('validateRocketData', () => {
+    it('should return error when capacity exceeds maximum', () => {
+      // Arrange
+      const invalidData = { name: 'Test', range: 'mars', capacity: 11 };
+      
+      // Act
+      const errors = service.validateRocketData(invalidData);
+      
+      // Assert
+      expect(errors).toHaveLength(1);
+      expect(errors[0].field).toBe('capacity');
+    });
+  });
+});
+```
+
+#### Mocking Strategy
+For services with dependencies (e.g., `LaunchService` depends on `RocketService`):
+- Create mock implementations that return controlled test data
+- Inject mocks via constructor or module replacement
+- Focus unit tests on the service under test, not its dependencies
+
+**Example Mock:**
+```typescript
+// src/services/launchService.spec.ts
+class MockRocketService {
+  getRocketById(id: string) {
+    return { id: 'rocket-1', capacity: 5, ... };
+  }
+}
+
+const service = new LaunchService(mockRocketService);
+```
+
+#### Testing Pyramid
+```
+       ┌────────────┐
+       │  E2E (Few) │  → Full integration, slower
+       ├────────────┤
+       │ Unit (Many)│  → Isolated, fast feedback
+       └────────────┘
+```
+
+**When to Write Each:**
+- **Unit tests**: When implementing/modifying service methods, validation rules, or business logic
+- **E2E tests**: When implementing/modifying route handlers or API contracts
+- Both complement each other: unit tests provide fast feedback during development, E2E tests provide confidence in integration
+
+#### Test Organization
+- Unit tests mirror service structure: `rocketService.ts` → `rocketService.spec.ts`
+- E2E tests mirror route structure: `routes/rockets.ts` → `tests/rockets.spec.ts`
+- Shared test utilities can be placed in `tests/helpers/` or `src/utils/testing/`
+
 ```
 
 ### Testing Architecture
@@ -322,11 +551,7 @@ src/
 │   └── launches.ts    # Launch endpoints
 ├── services/          # Business logic - service + unit tests
 │   ├── rocketService.ts
-│   ├── rocketService.spec.ts  # Unit tests for rocket service
-│   ├── customerService.ts
-│   ├── customerService.spec.ts
-│   ├── launchService.ts
-│   └── launchService.spec.ts
+│   └── rocketService.spec.ts  # Unit tests for rocket service
 ├── types/             # Type definitions - one file per domain
 │   ├── rocket.ts
 │   ├── customer.ts

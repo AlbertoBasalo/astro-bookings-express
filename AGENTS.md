@@ -61,17 +61,17 @@ npm run typecheck   # Type-check without build
 
 **Dual Testing Approach:**
 - **Unit Tests (Vitest)**: Test service layer in isolation
-  - Focus: Business logic, validation rules, error handling, state management
-  - Location: Colocated with services (`src/services/*.spec.ts`)
-  - Run with: `npm run test:unit` or `npm run test:dev` (watch mode)
-  - Pattern: Arrange-Act-Assert, uses `describe()`, `it()`, `expect()`
-  - Mocking: Mock service dependencies (e.g., `LaunchService` mocks `RocketService`)
+	- Focus: Business logic, validation rules, error handling, state management
+	- Location: Colocated with services (`src/services/*.spec.ts`)
+	- Run with: `npm run test:unit` or `npm run test:dev` (watch mode)
+	- Pattern: Arrange-Act-Assert, uses `describe()`, `it()`, `expect()`
+	- Mocking: Mock service dependencies (e.g., `LaunchService` mocks `RocketService`)
 
 - **E2E Tests (Playwright)**: Test HTTP API contracts
-  - Focus: Request/response flows, status codes, route handlers
-  - Location: Separate test directory (`tests/*.spec.ts`)
-  - Run with: `npm run test`
-  - Pattern: Full HTTP request/response cycle testing
+	- Focus: Request/response flows, status codes, route handlers
+	- Location: Separate test directory (`tests/*.spec.ts`)
+	- Run with: `npm run test`
+	- Pattern: Full HTTP request/response cycle testing
 
 **When to write each:**
 - Write unit tests when implementing or modifying service business logic
