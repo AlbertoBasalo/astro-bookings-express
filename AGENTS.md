@@ -28,6 +28,7 @@ npm run typecheck  # Type-check without build
 ### Folder structure
 ```text
 .                         # Project root  
+├── .agents/              # Primitive agent files (skills, specs, etc.)
 ├── AGENTS.md             # This file with instructions
 ├── ADD.md                # Architecture design doc
 ├── PRD.md                # Product requirements doc
@@ -37,8 +38,7 @@ npm run typecheck  # Type-check without build
 │   ├── services/         # One service per domain
 │   ├── types/            # One type file per domain
 │   └── utils/            # Shared utilities
-├── tests/                # E2E tests mirror routes
-└── specs/                # API specs per resource
+└── tests/                # E2E tests mirror routes
 ```
 
 ### Implementation Rules
