@@ -48,7 +48,8 @@ Out of scope for initial phase:
 ### FR4 Booking Creation
 - **Description**: Customers can book one or more seats on a launch, with validation against rocket capacity and available seats.
 - **Priority**: High
-- **Status**: NotStarted
+- **Status**: Specified
+- **Spec**: [feat-booking-creation.spec.md](.agents/specs/feat-booking-creation.spec.md)
 
 ### FR5 Launch Lifecycle Management
 - **Description**: Launches transition through defined states (scheduled → confirmed → successful) with cancellation and suspension paths based on business rules.

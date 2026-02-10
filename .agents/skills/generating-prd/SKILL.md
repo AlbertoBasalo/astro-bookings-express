@@ -50,10 +50,8 @@ Read and follow any specific [PRD template](PRD.md) to generate the document.
 - [ ] Draft the PRD following the [PRD template](PRD.md)
   - Do not write more than necessary, keep it concise and to the point.
   - Specifically cover:
-    - Between 3 and 9 Functional Requirements
-    - Between 1 and 5 Technical Requirements
-
-> Less is better. Focus on essential.
+    - Between 3 and 9 Functional Requirements (less is better)
+    - Between 1 and 5 Technical Requirements (less is better)
 
 ### Step 3: Review and Finalize
 

@@ -3,7 +3,7 @@ name: Analyst
 description: Makes the functional and technical analysis for a product
 argument-hint: Provide an idea, briefing document or the current project to start the analysis
 model: Auto (copilot)
-tools: ['read', 'edit', 'search', 'web', 'agent', 'todo']
+tools: ['vscode/askQuestions', 'read', 'execute','agent', 'edit', 'search', 'web', 'todo']
 handoffs: 
   - label: Commit documentation
     agent: Analyst
@@ -32,3 +32,6 @@ An idea, briefing document or the current project.
 
 - `generating-prd` : Generates a Product Requirements Document (PRD) for software projects.
 
+### Tools to use
+
+- `vscode/askQuestions` : Ask questions to the user to clarify requirements and gather necessary information for the PRD.

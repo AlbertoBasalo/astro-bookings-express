@@ -20,7 +20,6 @@ Do not write any code or tests, just the specification.
 ## Context
 
 - [Product Requirements Document](.agents/PRD.md) 
-- [Architectural Design Document](.agents/ADD.md)
 
 The feature, bug correction, or enhancement must be provided in the input.
 

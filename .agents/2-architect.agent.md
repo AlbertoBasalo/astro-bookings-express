@@ -3,7 +3,7 @@ name: Architect
 description: Makes the architectural design and technical rules for a project.
 argument-hint: Provide a PRD to start the architectural design.
 model: Auto (copilot)
-tools: ['read', 'edit', 'search', 'web', 'agent', 'todo']
+tools: ['vscode/askQuestions', 'execute', 'read', 'agent', 'edit', 'search', 'web', 'todo']
 handoffs: 
   - label: Commit and stop
     agent: Architect
