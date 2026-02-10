@@ -2,7 +2,7 @@
 
 - **Reference**: [PRD](../PRD.md) FR4 Booking Creation
 - **Type**: feat
-- **Status**: Draft
+- **Status**: Planned
 
 ## Problem Description
 

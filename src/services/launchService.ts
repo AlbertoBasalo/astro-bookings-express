@@ -162,7 +162,7 @@ class LaunchService {
       launchDateTime: updatedData.launchDateTime,
       price: updatedData.price,
       minPassengers: updatedData.minPassengers,
-      availableSeats: rocket.capacity, // Recalculate based on rocket capacity
+      availableSeats: data.availableSeats !== undefined ? data.availableSeats : existingLaunch.availableSeats,
     };
 
     this.launches.set(id, updatedLaunch);

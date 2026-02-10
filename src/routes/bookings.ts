@@ -1,0 +1,98 @@
+import { Router, type Request, type Response } from 'express';
+import { bookingService } from '../services/bookingService.js';
+import type { CreateBookingRequest, UpdateBookingRequest, ValidationError } from '../types/booking.js';
+import { logger } from '../utils/logger.js';
+
+const router = Router();
+
+const extractId = (params: Request['params'], key: string): string => {
+  const value = params[key];
+  return Array.isArray(value) ? value[0] : value;
+};
+
+const handleValidationError = (error: Error, res: Response): void => {
+  try {
+    const validationErrors = JSON.parse(error.message) as ValidationError[];
+    res.status(400).json({ errors: validationErrors });
+  } catch {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const handleServiceError = (error: unknown, res: Response): void => {
+  if (error instanceof Error) {
+    if (error.message === 'Booking not found') {
+      res.status(404).json({ error: error.message });
+      return;
+    }
+    handleValidationError(error, res);
+  } else {
+    res.status(400).json({ error: 'Invalid request' });
+  }
+};
+
+router.post('/', (req: Request, res: Response) => {
+  logger.info('Routes', 'POST /bookings');
+  try {
+    const data = req.body as CreateBookingRequest;
+    const booking = bookingService.createBooking(data);
+    logger.info('Routes', 'POST /bookings - Created', { id: booking.id });
+    res.status(201).json(booking);
+  } catch (error) {
+    logger.error('Routes', 'POST /bookings - Failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    handleServiceError(error, res);
+  }
+});
+
+router.get('/', (req: Request, res: Response) => {
+  logger.info('Routes', 'GET /bookings');
+  const bookings = bookingService.getAllBookings();
+  logger.info('Routes', 'GET /bookings - Success', { count: bookings.length });
+  res.status(200).json(bookings);
+});
+
+router.get('/:id', (req: Request, res: Response) => {
+  const id = extractId(req.params, 'id');
+  logger.info('Routes', `GET /bookings/${id}`);
+  const booking = bookingService.getBookingById(id);
+
+  if (!booking) {
+    logger.warn('Routes', `GET /bookings/${id} - Not found`);
+    res.status(404).json({ error: 'Booking not found' });
+    return;
+  }
+
+  logger.info('Routes', `GET /bookings/${id} - Success`);
+  res.status(200).json(booking);
+});
+
+router.put('/:id', (req: Request, res: Response) => {
+  try {
+    const id = extractId(req.params, 'id');
+    logger.info('Routes', `PUT /bookings/${id}`);
+    const data = req.body as UpdateBookingRequest;
+    const booking = bookingService.updateBooking(id, data);
+    logger.info('Routes', `PUT /bookings/${id} - Updated`);
+    res.status(200).json(booking);
+  } catch (error) {
+    logger.error('Routes', 'PUT /bookings/:id - Failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+    handleServiceError(error, res);
+  }
+});
+
+router.delete('/:id', (req: Request, res: Response) => {
+  const id = extractId(req.params, 'id');
+  logger.info('Routes', `DELETE /bookings/${id}`);
+  const deleted = bookingService.deleteBooking(id);
+
+  if (!deleted) {
+    logger.warn('Routes', `DELETE /bookings/${id} - Not found`);
+    res.status(404).json({ error: 'Booking not found' });
+    return;
+  }
+
+  logger.info('Routes', `DELETE /bookings/${id} - Deleted`);
+  res.status(204).send();
+});
+
+export { router as bookingsRouter };

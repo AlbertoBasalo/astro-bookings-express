@@ -1,4 +1,5 @@
 import express from 'express';
+import { bookingsRouter } from './routes/bookings.js';
 import { customersRouter } from './routes/customers.js';
 import { launchesRouter } from './routes/launches.js';
 import { rocketsRouter } from './routes/rockets.js';
@@ -28,6 +29,8 @@ app.use('/rockets', rocketsRouter);
 app.use('/launches', launchesRouter);
 
 app.use('/customers', customersRouter);
+
+app.use('/bookings', bookingsRouter);
 
 app.listen(port, () => {
   logger.info('App', `Server listening on http://localhost:${port}`);
