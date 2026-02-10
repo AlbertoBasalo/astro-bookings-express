@@ -46,37 +46,15 @@ npm run typecheck   # Type-check without build
 ```
 
 ### Implementation Rules
-1. Layers: routes (HTTP), services (logic), types (models).
-2. Files: `resources.ts`, `resourceService.ts`, `resource.ts` pattern.
-3. Types: explicit DTOs (`CreateRequest`, `UpdateRequest`), no `any`.
-4. Services: class with Map, `resource-${id++}` IDs, throw errors.
-5. HTTP: POST→201, GET→200, PUT→200, DELETE→204, 400→validation, 404→not found.
-6. Validation: return all errors at once, validate non-null/empty/ranges/enums.
-7. Tests E2E: Playwright tests covering acceptance criteria and HTTP contracts in `tests/`.
-8. Tests Unit: Vitest tests for service layer validation, logic, and error cases in `src/**/*.spec.ts`.
-9. Logging: `logger.info/error/warn(component, message, data?)`.
-10. No auth/security - training only, document clearly.
-
-### Testing Strategy
-
-**Dual Testing Approach:**
-- **Unit Tests (Vitest)**: Test service layer in isolation
-	- Focus: Business logic, validation rules, error handling, state management
-	- Location: Colocated with services (`src/services/*.spec.ts`)
-	- Run with: `npm run test:unit` or `npm run test:dev` (watch mode)
-	- Pattern: Arrange-Act-Assert, uses `describe()`, `it()`, `expect()`
-	- Mocking: Mock service dependencies (e.g., `LaunchService` mocks `RocketService`)
-
-- **E2E Tests (Playwright)**: Test HTTP API contracts
-	- Focus: Request/response flows, status codes, route handlers
-	- Location: Separate test directory (`tests/*.spec.ts`)
-	- Run with: `npm run test`
-	- Pattern: Full HTTP request/response cycle testing
-
-**When to write each:**
-- Write unit tests when implementing or modifying service business logic
-- Write E2E tests when implementing or modifying route handlers
-- Both test types complement each other - unit tests are fast feedback, E2E tests are integration confidence
+1. **Architecture**: Layered design - routes (HTTP) → services (logic) → types (models)
+2. **Naming**: `resources.ts`, `resourceService.ts`, `resource.ts` pattern
+3. **Types**: Explicit DTOs, no `any`, strict TypeScript
+4. **Services**: Class with Map storage, auto-increment IDs, throw on validation errors
+5. **HTTP Status**: 201 (created), 200 (success), 204 (deleted), 400 (validation), 404 (not found)
+6. **Validation**: Return all errors at once, validate required/empty/ranges/enums
+7. **Logging**: Use `logger.info/error/warn(component, message, data?)`
+8. **Testing**: Unit tests (`*.spec.ts`) ensure code quality during implementation; E2E tests (`tests/*.spec.ts`) verify acceptance criteria
+9. **Security**: None - training only, clearly documented
 
 ## Environment
 - Code and documentation must be in English.

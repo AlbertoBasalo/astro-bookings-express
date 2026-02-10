@@ -1,314 +1,123 @@
+---
+name: testing-unit-vitest
+description: "Provides patterns and best practices for writing unit tests with Vitest in the AstroBookings Express project. To be used when testing service layer business logic, validation rules, error handling, and state management without HTTP overhead."
+--- 
+
 # Unit Testing with Vitest - Skill Guide
 
 ## Overview
 Write isolated unit tests for service layer business logic using Vitest, focusing on validation rules, error handling, and state management without HTTP overhead.
 
+## Example Files
+
+This skill includes **8 discoverable example files** with complete, copy-ready patterns:
+
+| File | Pattern |
+|------|---------|
+| [1-basic-structure.example.ts](1-basic-structure.example.ts) | Arrange-Act-Assert test structure |
+| [2-validation-rules.example.ts](2-validation-rules.example.ts) | Testing validation logic |
+| [3-crud-operations.example.ts](3-crud-operations.example.ts) | Create, Read, Update, Delete tests |
+| [4-boundary-conditions.example.ts](4-boundary-conditions.example.ts) | Min/max value testing |
+| [5-string-transformations.example.ts](5-string-transformations.example.ts) | String trimming and formatting |
+| [6-mocking-dependencies.example.ts](6-mocking-dependencies.example.ts) | Service dependency mocking |
+| [7-error-scenarios.example.ts](7-error-scenarios.example.ts) | Error handling tests |
+| [8-common-matchers.example.ts](8-common-matchers.example.ts) | Vitest matcher reference |
+
+**Usage**: Reference these files directly in your code or copy patterns as needed.
+
+## When to Use Unit Tests vs E2E Tests
+
+**Unit Tests (Vitest)** - Ensure code quality during implementation:
+- ✓ Write during development to validate business logic
+- ✓ Fast feedback on validation rules and edge cases
+- ✓ Catch bugs early in isolated components
+- ✓ Test boundary conditions (min/max values)
+- ✓ Verify error handling and state management
+- ⚠ Run: `npm run test:unit` or `npm run test:dev` (watch)
+
+**E2E Tests (Playwright)** - Verify acceptance criteria from specs:
+- ✓ Confirm feature meets specifications
+- ✓ Validate HTTP contracts and status codes
+- ✓ Test complete request/response flows
+- ✓ Ensure all layers integrate correctly
+- ⚠ Run: `npm run test`
+
+**Rule of thumb**: Write unit tests as you implement to ensure quality; write E2E tests to verify the feature meets acceptance criteria.
+
 ## Quick Reference
 
 ### Basic Test Structure (Arrange-Act-Assert)
-```typescript
-import { describe, it, expect, beforeEach } from 'vitest';
 
-describe('ServiceName', () => {
-  let service: ServiceName;
+See [1-basic-structure.example.ts](1-basic-structure.example.ts) for the fundamental test pattern.
 
-  beforeEach(() => {
-    service = new ServiceName(); // Fresh instance per test
-  });
-
-  it('should [expected behavior]', () => {
-    // Arrange - Set up test data
-    const input = { /* test data */ };
-
-    // Act - Execute the method under test
-    const result = service.methodUnderTest(input);
-
-    // Assert - Verify the outcome
-    expect(result).toBe(expectedValue);
-  });
-});
-```
+Key points:
+- Use `beforeEach()` to create fresh service instances
+- Follow Arrange-Act-Assert pattern for clarity
+- Use descriptive test names: `it('should [expected behavior]')`
 
 ## Key Patterns
 
 ### 1. Testing Validation Rules
-```typescript
-describe('validateData', () => {
-  it('should return no errors for valid data', () => {
-    const validData = { name: 'Valid', capacity: 5 };
-    
-    const errors = service.validateData(validData);
-    
-    expect(errors).toHaveLength(0);
-  });
 
-  it('should return error when field is invalid', () => {
-    const invalidData = { name: '', capacity: 5 };
-    
-    const errors = service.validateData(invalidData);
-    
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toEqual({
-      field: 'name',
-      message: 'Name is required'
-    });
-  });
+See [2-validation-rules.example.ts](2-validation-rules.example.ts) for validation testing patterns.
 
-  it('should return multiple errors for multiple invalid fields', () => {
-    const invalidData = { name: '', capacity: -1 };
-    
-    const errors = service.validateData(invalidData);
-    
-    expect(errors.length).toBeGreaterThanOrEqual(2);
-    expect(errors.map(e => e.field)).toContain('name');
-    expect(errors.map(e => e.field)).toContain('capacity');
-  });
-});
-```
+Key patterns:
+- Test valid data returns no errors
+- Test each invalid field returns appropriate error
+- Test multiple validation failures return all errors at once
 
 ### 2. Testing CRUD Operations
-```typescript
-describe('createEntity', () => {
-  it('should create entity with valid data', () => {
-    const data = { name: 'Test', capacity: 5 };
-    
-    const entity = service.createEntity(data);
-    
-    expect(entity).toBeDefined();
-    expect(entity.id).toBeTruthy();
-    expect(entity.name).toBe('Test');
-  });
 
-  it('should generate sequential IDs', () => {
-    const entity1 = service.createEntity({ name: 'First', capacity: 3 });
-    const entity2 = service.createEntity({ name: 'Second', capacity: 4 });
-    
-    expect(entity1.id).toBe('entity-1');
-    expect(entity2.id).toBe('entity-2');
-  });
+See [3-crud-operations.example.ts](3-crud-operations.example.ts) for comprehensive CRUD testing patterns.
 
-  it('should throw error for invalid data', () => {
-    const invalidData = { name: '', capacity: 5 };
-    
-    expect(() => service.createEntity(invalidData)).toThrow();
-  });
-});
-
-describe('getEntityById', () => {
-  it('should return entity when it exists', () => {
-    const created = service.createEntity({ name: 'Test', capacity: 5 });
-    
-    const found = service.getEntityById(created.id);
-    
-    expect(found).toBeDefined();
-    expect(found?.name).toBe('Test');
-  });
-
-  it('should return undefined when entity does not exist', () => {
-    const found = service.getEntityById('non-existent-id');
-    
-    expect(found).toBeUndefined();
-  });
-});
-
-describe('updateEntity', () => {
-  it('should update entity with valid data', () => {
-    const created = service.createEntity({ name: 'Original', capacity: 3 });
-    
-    const updated = service.updateEntity(created.id, { name: 'Updated' });
-    
-    expect(updated.name).toBe('Updated');
-    expect(updated.capacity).toBe(3); // unchanged
-  });
-
-  it('should throw error when updating non-existent entity', () => {
-    expect(() => service.updateEntity('non-existent', { name: 'Test' }))
-      .toThrow('Entity not found');
-  });
-
-  it('should preserve fields not included in update', () => {
-    const created = service.createEntity({ name: 'Test', capacity: 5 });
-    
-    const updated = service.updateEntity(created.id, { capacity: 7 });
-    
-    expect(updated.name).toBe('Test'); // preserved
-    expect(updated.capacity).toBe(7); // updated
-  });
-});
-
-describe('deleteEntity', () => {
-  it('should delete existing entity and return true', () => {
-    const created = service.createEntity({ name: 'ToDelete', capacity: 2 });
-    
-    const result = service.deleteEntity(created.id);
-    
-    expect(result).toBe(true);
-    expect(service.getEntityById(created.id)).toBeUndefined();
-  });
-
-  it('should return false when deleting non-existent entity', () => {
-    const result = service.deleteEntity('non-existent-id');
-    
-    expect(result).toBe(false);
-  });
-});
-```
+Key patterns:
+- **Create**: Test entity creation, ID generation, and validation errors
+- **Read**: Test finding existing entities and handling missing ones
+- **Update**: Test updates, non-existent entities, and field preservation
+- **Delete**: Test deletion success and handling non-existent entities
 
 ### 3. Testing Boundary Conditions
-```typescript
-describe('validation boundaries', () => {
-  it('should accept minimum valid value', () => {
-    const data = { name: 'Test', capacity: 1 }; // MIN = 1
-    
-    const errors = service.validateData(data);
-    
-    expect(errors).toHaveLength(0);
-  });
 
-  it('should accept maximum valid value', () => {
-    const data = { name: 'Test', capacity: 10 }; // MAX = 10
-    
-    const errors = service.validateData(data);
-    
-    expect(errors).toHaveLength(0);
-  });
+See [4-boundary-conditions.example.ts](4-boundary-conditions.example.ts) for boundary testing patterns.
 
-  it('should reject value below minimum', () => {
-    const data = { name: 'Test', capacity: 0 };
-    
-    const errors = service.validateData(data);
-    
-    expect(errors.some(e => e.field === 'capacity')).toBe(true);
-  });
-
-  it('should reject value above maximum', () => {
-    const data = { name: 'Test', capacity: 11 };
-    
-    const errors = service.validateData(data);
-    
-    expect(errors.some(e => e.field === 'capacity')).toBe(true);
-  });
-});
-```
+Key patterns:
+- Test minimum valid value (edge case)
+- Test maximum valid value (edge case)
+- Test below minimum (invalid)
+- Test above maximum (invalid)
 
 ### 4. Testing String Transformations
-```typescript
-it('should trim whitespace from string fields', () => {
-  const data = { name: '  Trimmed  ', capacity: 5 };
-  
-  const entity = service.createEntity(data);
-  
-  expect(entity.name).toBe('Trimmed');
-});
 
-it('should reject empty string after trimming', () => {
-  const data = { name: '   ', capacity: 5 };
-  
-  const errors = service.validateData(data);
-  
-  expect(errors.some(e => e.field === 'name')).toBe(true);
-});
-```
+See [5-string-transformations.example.ts](5-string-transformations.example.ts) for string handling patterns.
+
+Key patterns:
+- Test whitespace trimming
+- Test empty strings after trimming are rejected
+- Test case transformations if applicable
 
 ### 5. Mocking Service Dependencies
-When a service depends on another service:
 
-```typescript
-// Create mock for dependency
-class MockRocketService {
-  private rockets = new Map([
-    ['rocket-1', { id: 'rocket-1', capacity: 5 }],
-  ]);
+See [6-mocking-dependencies.example.ts](6-mocking-dependencies.example.ts) for complete mocking patterns.
 
-  getRocketById(id: string) {
-    return this.rockets.get(id);
-  }
-}
-
-describe('LaunchService', () => {
-  let service: LaunchService;
-  let mockRocketService: MockRocketService;
-
-  beforeEach(() => {
-    mockRocketService = new MockRocketService();
-    service = new LaunchService(mockRocketService); // Inject mock
-  });
-
-  it('should validate against rocket capacity', () => {
-    const data = {
-      rocketId: 'rocket-1',
-      minPassengers: 6, // Exceeds capacity of 5
-      // ... other fields
-    };
-    
-    const errors = service.validateLaunchData(data);
-    
-    expect(errors.some(e => 
-      e.field === 'minPassengers' && 
-      e.message.includes('rocket capacity')
-    )).toBe(true);
-  });
-});
-```
+Key patterns:
+- Create mock classes that implement same interface as real service
+- Inject mocks via constructor during test setup
+- Mock only what's needed for the test (don't over-mock)
+- Test both successful and error scenarios with mocked dependencies
 
 ### 6. Testing Error Scenarios
-```typescript
-it('should throw error with validation details', () => {
-  const invalidData = { name: '', capacity: 0 };
-  
-  try {
-    service.createEntity(invalidData);
-    fail('Should have thrown an error');
-  } catch (error: any) {
-    const errors = JSON.parse(error.message);
-    expect(Array.isArray(errors)).toBe(true);
-    expect(errors.length).toBeGreaterThan(0);
-  }
-});
 
-// Alternative using expect().toThrow()
-it('should throw error for invalid data', () => {
-  const invalidData = { name: '', capacity: 0 };
-  
-  expect(() => service.createEntity(invalidData)).toThrow();
-});
-```
+See [7-error-scenarios.example.ts](7-error-scenarios.example.ts) for error handling patterns.
+
+Key patterns:
+- Test that errors are thrown for invalid operations
+- Test error messages contain useful information
+- Use `expect().toThrow()` for simple error testing
+- Use try-catch for detailed error validation
 
 ## Common Matchers
 
-```typescript
-// Equality
-expect(value).toBe(expected);           // Strict equality (===)
-expect(value).toEqual(expected);        // Deep equality for objects/arrays
-expect(value).toStrictEqual(expected);  // Strict deep equality
-
-// Truthiness
-expect(value).toBeTruthy();
-expect(value).toBeFalsy();
-expect(value).toBeDefined();
-expect(value).toBeUndefined();
-expect(value).toBeNull();
-
-// Numbers
-expect(number).toBeGreaterThan(3);
-expect(number).toBeGreaterThanOrEqual(3);
-expect(number).toBeLessThan(10);
-expect(number).toBeLessThanOrEqual(10);
-
-// Arrays
-expect(array).toHaveLength(3);
-expect(array).toContain(item);
-expect(array).toContainEqual({ id: 1 });
-
-// Strings
-expect(string).toMatch(/pattern/);
-expect(string).toContain('substring');
-
-// Exceptions
-expect(() => fn()).toThrow();
-expect(() => fn()).toThrow('Error message');
-expect(() => fn()).toThrow(ErrorType);
-```
+See [8-common-matchers.example.ts](8-common-matchers.example.ts) for a comprehensive list of Vitest matchers.
 
 ## File Naming and Location
 - Unit test files: `src/services/serviceName.spec.ts`

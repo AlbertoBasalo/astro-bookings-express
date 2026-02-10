@@ -19,17 +19,13 @@ Backend API for a fictional space travel booking system demonstrating RESTful AP
     - [Design Patterns](#design-patterns)
     - [Data Flow](#data-flow)
     - [Testing Architecture](#testing-architecture)
-      - [E2E Tests (Playwright)](#e2e-tests-playwright)
-      - [Unit Tests (Vitest)](#unit-tests-vitest)
-      - [Mocking Strategy](#mocking-strategy)
-      - [Testing Pyramid](#testing-pyramid)
-      - [Test Organization](#test-organization)
+    - [Folder Structure Philosophy](#folder-structure-philosophy)
   - [Architecture Decisions Record (ADR)](#architecture-decisions-record-adr)
     - [ADR 1: In-Memory Storage Only](#adr-1-in-memory-storage-only)
     - [ADR 2: Layered Monolithic Architecture](#adr-2-layered-monolithic-architecture)
     - [ADR 3: TypeScript Strict Mode with Explicit Types](#adr-3-typescript-strict-mode-with-explicit-types)
     - [ADR 4: Express 5 with Native Async Support](#adr-4-express-5-with-native-async-support)
-    - [ADR 5: End-to-End Testing with Playwright](#adr-5-end-to-end-testing-with-playwright)
+    - [ADR 5: Dual Testing Strategy with Playwright and Vitest](#adr-5-dual-testing-strategy-with-playwright-and-vitest)
     - [ADR 6: No Authentication or Authorization](#adr-6-no-authentication-or-authorization)
     - [ADR 7: Resource-Based Folder Organization](#adr-7-resource-based-folder-organization)
     - [ADR 8: Custom Logger Utility Instead of Framework](#adr-8-custom-logger-utility-instead-of-framework)
@@ -205,44 +201,18 @@ DELETE /rockets/:id
   → Router extracts ID parameter
   → Service removes from Map
   → Returns 204 No Content
+```
+
 ### Testing Architecture
 
-**Dual Testing Strategy:**
+AstroBookings implements a **dual testing strategy** with distinct purposes aligned to the development workflow.
 
-AstroBookings implements a complementary dual testing approach to ensure both integration correctness and business logic reliability:
+**Why Dual Testing?**
 
-**1. End-to-End Tests (Playwright)**
-- **Purpose**: Validate complete HTTP request/response cycles and API contracts
-- **Scope**: Full stack integration from HTTP request to response
-- **Location**: `tests/*.spec.ts` (separate directory)
-- **When to Use**: Testing route handlers, status codes, HTTP flows, acceptance criteria
-- **Pattern**: 
-  ```typescript
-  test('should create rocket with valid data', async ({ request }) => {
-    const response = await request.post('/rockets', {
-      data: { name: 'Falcon 9', capacity: 100, status: 'active' }
-    });
-    expect(response.status()).toBe(201);
-    const rocket = await response.json();
-    expect(rocket.name).toBe('Falcon 9');
-  });
-  ```
-
-**2. Unit Tests (Vitest)**
-- **Purpose**: Test service layer business logic in complete isolation
-- **Scope**: Individual service methods, validation rules, error handling, state management
-- **Location**: `src/services/*.spec.ts` (colocated with services)
-- **When to Use**: Testing validation logic, CRUD operations, business rules, error conditions
-- **Pattern**: Arrange-Act-Assert with mocking
-  ```typescript
-  describe('RocketService validation', () => {
-    it('should reject empty rocket name', () => {
-      const service = new RocketService();
-      expect(() => service.create({ name: '', capacity: 100, status: 'active' }))
-        .toThrow('Rocket name cannot be empty');
-    });
-  });
-  ```
+The architecture uses two complementary testing approaches:
+- **Unit Tests (Vitest)**: Ensure code quality during implementation by validating business logic, validation rules, and edge cases in isolation
+- **E2E Tests (Playwright)**: Verify acceptance criteria from specifications by testing complete HTTP request/response cycles and API contracts
+- **Together**: Unit tests maintain code quality throughout development; E2E tests confirm specifications are met before deployment
 
 **Test Responsibilities by Layer:**
 
@@ -252,294 +222,38 @@ AstroBookings implements a complementary dual testing approach to ensure both in
 | Services | ✓ Integration behavior | ✓ Business logic<br>✓ Validation rules<br>✓ Error handling<br>✓ State management |
 | Types | ✓ Contract validation | ✗ (compile-time) |
 
-**Mocking Strategy:**
-
-Unit tests mock service dependencies to maintain isolation:
-
-```typescript
-// Example: LaunchService unit test mocks RocketService
-class MockRocketService {
-  private rockets = new Map<string, Rocket>();
-  
-  create(data: CreateRequest): Rocket {
-    const rocket: Rocket = { id: `rocket-${Date.now()}`, ...data };
-    this.rockets.set(rocket.id, rocket);
-    return rocket;
-  }
-  
-  findById(id: string): Rocket {
-    const rocket = this.rockets.get(id);
-    if (!rocket) throw new Error(`Rocket not found: ${id}`);
-    return rocket;
-  }
-}
-
-describe('LaunchService', () => {
-  let launchService: LaunchService;
-  let mockRocketService: MockRocketService;
-  
-  beforeEach(() => {
-    mockRocketService = new MockRocketService();
-    launchService = new LaunchService(mockRocketService);
-  });
-  
-  it('should validate rocket exists', () => {
-    const validRequest = {
-      rocketId: 'nonexistent',
-      launchDate: '2025-06-01',
-      minPassengers: 50,
-      pricePerSeat: 1000000
-    };
-    
-    expect(() => launchService.create(validRequest))
-      .toThrow('Rocket not found');
-  });
-});
-```
-
 **Testing Pyramid:**
 
 ```
-       /\
-      /  \       E2E Tests (Playwright)
-     /____\      - Test HTTP contracts
-    /      \     - Acceptance criteria
-   /        \    - Integration flows
-  /__________\   
- /            \  Unit Tests (Vitest)
-/______________\ - Service logic
-                 - Validation rules
-                 - Business rules
-                 - Error handling
-```
-
-**Why Both?**
-- **Unit Tests**: Fast feedback on business logic changes, precise error messages, easy to debug
-- **E2E Tests**: Confidence in API contracts, validates full stack behavior, matches acceptance criteria
-- **Together**: Unit tests catch logic bugs during development; E2E tests catch integration issues before deployment
-
-**Test Organization:**
-- E2E test files mirror route files: `routes/rockets.ts` → `tests/rockets.spec.ts`
-- Unit test files are colocated: `services/rocketService.ts` → `services/rocketService.spec.ts`
-- Both use descriptive test names: `'should reject empty rocket name'` over `'test1'`
-- Tests document expected behavior and serve as living examples
-
-### Testing Architecture
-
-AstroBookings implements a **dual testing strategy** that covers both integration (E2E) and isolation (unit) perspectives:
-
-#### E2E Tests (Playwright)
-**Purpose**: Validate HTTP API contracts and full request/response cycles
-- **Location**: `tests/*.spec.ts` (separate directory)
-- **Scope**: Routes → Services → Types integration
-- **Focus**: HTTP status codes, request/response formats, acceptance criteria
-- **Run**: `npm run test` or `npm run test:ui`
-- **Pattern**: Real HTTP requests against running server
-
-**Example E2E Test Structure:**
-```typescript
-// tests/rockets.spec.ts
-test('POST /rockets creates new rocket', async ({ request }) => {
-  const response = await request.post('/rockets', {
-    data: { name: 'Falcon 9', range: 'orbital', capacity: 7 }
-  });
-  expect(response.status()).toBe(201);
-  const rocket = await response.json();
-  expect(rocket.id).toBeDefined();
-});
-```
-
-#### Unit Tests (Vitest)
-**Purpose**: Validate service layer business logic in isolation
-- **Location**: `src/services/*.spec.ts` (colocated with services)
-- **Scope**: Service methods, validation logic, state management
-- **Focus**: Business rules, error handling, edge cases, boundary conditions
-- **Run**: `npm run test:unit` or `npm run test:dev` (watch mode)
-- **Pattern**: Direct service instantiation with mocked dependencies
-
-**Example Unit Test Structure:**
-```typescript
-// src/services/rocketService.spec.ts
-describe('RocketService', () => {
-  let service: RocketService;
-  
-  beforeEach(() => {
-    service = new RocketService();
-  });
-
-  describe('validateRocketData', () => {
-    it('should return error when capacity exceeds maximum', () => {
-      // Arrange
-      const invalidData = { name: 'Test', range: 'mars', capacity: 11 };
-      
-      // Act
-      const errors = service.validateRocketData(invalidData);
-      
-      // Assert
-      expect(errors).toHaveLength(1);
-      expect(errors[0].field).toBe('capacity');
-    });
-  });
-});
-```
-
-#### Mocking Strategy
-For services with dependencies (e.g., `LaunchService` depends on `RocketService`):
-- Create mock implementations that return controlled test data
-- Inject mocks via constructor or module replacement
-- Focus unit tests on the service under test, not its dependencies
-
-**Example Mock:**
-```typescript
-// src/services/launchService.spec.ts
-class MockRocketService {
-  getRocketById(id: string) {
-    return { id: 'rocket-1', capacity: 5, ... };
-  }
-}
-
-const service = new LaunchService(mockRocketService);
-```
-
-#### Testing Pyramid
-```
        ┌────────────┐
-       │  E2E (Few) │  → Full integration, slower
-       ├────────────┤
-       │ Unit (Many)│  → Isolated, fast feedback
-       └────────────┘
+       │  E2E (Few) │  → Verify acceptance criteria
+       ├────────────┤     Validate specifications
+       │ Unit (Many)│  → Ensure code quality
+       └────────────┘     Fast feedback during implementation
 ```
 
 **When to Write Each:**
-- **Unit tests**: When implementing/modifying service methods, validation rules, or business logic
-- **E2E tests**: When implementing/modifying route handlers or API contracts
-- Both complement each other: unit tests provide fast feedback during development, E2E tests provide confidence in integration
+- **Unit tests**: During implementation to ensure code quality - write as you build service methods, validation rules, and business logic
+- **E2E tests**: After implementation to verify acceptance criteria - confirm the feature meets specifications and API contracts
+- Both test types complement each other: unit tests guide development quality, E2E tests confirm specification compliance
 
-#### Test Organization
-- Unit tests mirror service structure: `rocketService.ts` → `rocketService.spec.ts`
-- E2E tests mirror route structure: `routes/rockets.ts` → `tests/rockets.spec.ts`
-- Shared test utilities can be placed in `tests/helpers/` or `src/utils/testing/`
+**Where Tests Live:**
+- **E2E Tests**: `tests/*.spec.ts` (separate directory, mirrors route structure)
+  - Example: `routes/rockets.ts` → `tests/rockets.spec.ts`
+- **Unit Tests**: `src/services/*.spec.ts` (colocated with services)
+  - Example: `rocketService.ts` → `rocketService.spec.ts`
 
-```
+**How to Run:**
+- `npm run test` - Execute E2E tests with Playwright
+- `npm run test:unit` - Execute unit tests with Vitest
+- `npm run test:dev` - Run Vitest in watch mode for development
+- `npm run test:all` - Run both test suites
 
-### Testing Architecture
+**Implementation Patterns:**
 
-**Dual Testing Strategy:**
-
-AstroBookings implements a complementary dual testing approach to ensure both integration correctness and business logic reliability:
-
-**1. End-to-End Tests (Playwright)**
-- **Purpose**: Validate complete HTTP request/response cycles and API contracts
-- **Scope**: Full stack integration from HTTP request to response
-- **Location**: `tests/*.spec.ts` (separate directory)
-- **When to Use**: Testing route handlers, status codes, HTTP flows, acceptance criteria
-- **Pattern**: 
-  ```typescript
-  test('should create rocket with valid data', async ({ request }) => {
-    const response = await request.post('/rockets', {
-      data: { name: 'Falcon 9', capacity: 100, status: 'active' }
-    });
-    expect(response.status()).toBe(201);
-    const rocket = await response.json();
-    expect(rocket.name).toBe('Falcon 9');
-  });
-  ```
-
-**2. Unit Tests (Vitest)**
-- **Purpose**: Test service layer business logic in complete isolation
-- **Scope**: Individual service methods, validation rules, error handling, state management
-- **Location**: `src/services/*.spec.ts` (colocated with services)
-- **When to Use**: Testing validation logic, CRUD operations, business rules, error conditions
-- **Pattern**: Arrange-Act-Assert with mocking
-  ```typescript
-  describe('RocketService validation', () => {
-    it('should reject empty rocket name', () => {
-      const service = new RocketService();
-      expect(() => service.create({ name: '', capacity: 100, status: 'active' }))
-        .toThrow('Rocket name cannot be empty');
-    });
-  });
-  ```
-
-**Test Responsibilities by Layer:**
-
-| Layer | E2E Tests (Playwright) | Unit Tests (Vitest) |
-|-------|------------------------|---------------------|
-| Routes | ✓ HTTP status codes<br>✓ Request parsing<br>✓ Response formatting | ✗ (tested via E2E) |
-| Services | ✓ Integration behavior | ✓ Business logic<br>✓ Validation rules<br>✓ Error handling<br>✓ State management |
-| Types | ✓ Contract validation | ✗ (compile-time) |
-
-**Mocking Strategy:**
-
-Unit tests mock service dependencies to maintain isolation:
-
-```typescript
-// Example: LaunchService unit test mocks RocketService
-class MockRocketService {
-  private rockets = new Map<string, Rocket>();
-  
-  create(data: CreateRequest): Rocket {
-    const rocket: Rocket = { id: `rocket-${Date.now()}`, ...data };
-    this.rockets.set(rocket.id, rocket);
-    return rocket;
-  }
-  
-  findById(id: string): Rocket {
-    const rocket = this.rockets.get(id);
-    if (!rocket) throw new Error(`Rocket not found: ${id}`);
-    return rocket;
-  }
-}
-
-describe('LaunchService', () => {
-  let launchService: LaunchService;
-  let mockRocketService: MockRocketService;
-  
-  beforeEach(() => {
-    mockRocketService = new MockRocketService();
-    launchService = new LaunchService(mockRocketService);
-  });
-  
-  it('should validate rocket exists', () => {
-    const validRequest = {
-      rocketId: 'nonexistent',
-      launchDate: '2025-06-01',
-      minPassengers: 50,
-      pricePerSeat: 1000000
-    };
-    
-    expect(() => launchService.create(validRequest))
-      .toThrow('Rocket not found');
-  });
-});
-```
-
-**Testing Pyramid:**
-
-```
-       /\
-      /  \       E2E Tests (Playwright)
-     /____\      - Test HTTP contracts
-    /      \     - Acceptance criteria
-   /        \    - Integration flows
-  /__________\   
- /            \  Unit Tests (Vitest)
-/______________\ - Service logic
-                 - Validation rules
-                 - Business rules
-                 - Error handling
-```
-
-**Why Both?**
-- **Unit Tests**: Fast feedback on business logic changes, precise error messages, easy to debug
-- **E2E Tests**: Confidence in API contracts, validates full stack behavior, matches acceptance criteria
-- **Together**: Unit tests catch logic bugs during development; E2E tests catch integration issues before deployment
-
-**Test Organization:**
-- E2E test files mirror route files: `routes/rockets.ts` → `tests/rockets.spec.ts`
-- Unit test files are colocated: `services/rocketService.ts` → `services/rocketService.spec.ts`
-- Both use descriptive test names: `'should reject empty rocket name'` over `'test1'`
-- Tests document expected behavior and serve as living examples
+For concrete testing patterns, examples, and mocking strategies, see:
+- E2E patterns: [.agents/skills/testing-playwright-e2e/SKILL.md](.agents/skills/testing-playwright-e2e/SKILL.md)
+- Unit testing patterns: [.agents/skills/testing-unit-vitest/SKILL.md](.agents/skills/testing-unit-vitest/SKILL.md)
 
 ### Folder Structure Philosophy
 ```
@@ -614,14 +328,14 @@ tests/                 # End-to-end tests mirror routes
 ### ADR 5: Dual Testing Strategy with Playwright and Vitest
 - **Decision**: Use Playwright for E2E API testing AND Vitest for service layer unit testing
 - **Status**: Accepted
-- **Context**: E2E tests validate complete HTTP contracts and acceptance criteria; unit tests provide fast feedback on business logic. Dual approach balances integration confidence with development speed.
+- **Context**: Unit tests ensure code quality by validating business logic during implementation; E2E tests verify acceptance criteria from specifications. Dual approach separates development-time quality assurance from specification verification.
 - **Consequences**:
-  - ✓ Fast feedback from unit tests during development
-  - ✓ Integration confidence from E2E tests
-  - ✓ Tests document behavior at multiple levels
-  - ✓ Isolation testing catches logic bugs early
-  - ✗ Two test frameworks to maintain (justified by benefits)
-  - ✗ Requires discipline to write both types appropriately
+  - ✓ Unit tests provide fast feedback during implementation
+  - ✓ E2E tests confirm acceptance criteria are met
+  - ✓ Better code quality through continuous validation
+  - ✓ Specifications verified before deployment
+  - ✗ Two test frameworks to maintain (justified by clear separation of concerns)
+  - ✗ Requires discipline to write appropriate test types for each purpose
 
 ### ADR 6: No Authentication or Authorization
 - **Decision**: Omit all security layers including authentication, authorization, CORS, and rate limiting
