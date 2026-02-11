@@ -1,35 +1,10 @@
 import { Router, type Request, type Response } from 'express';
 import { launchService } from '../services/launchService.js';
-import type { CreateLaunchRequest, UpdateLaunchRequest, ValidationError } from '../types/launch.js';
+import type { CreateLaunchRequest, UpdateLaunchRequest } from '../types/launch.js';
 import { logger } from '../utils/logger.js';
+import { extractId, handleServiceError } from '../utils/routeHelpers.js';
 
 const router = Router();
-
-const extractId = (params: Request['params'], key: string): string => {
-  const value = params[key];
-  return Array.isArray(value) ? value[0] : value;
-};
-
-const handleValidationError = (error: Error, res: Response): void => {
-  try {
-    const validationErrors = JSON.parse(error.message) as ValidationError[];
-    res.status(400).json({ errors: validationErrors });
-  } catch {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-const handleServiceError = (error: unknown, res: Response): void => {
-  if (error instanceof Error) {
-    if (error.message === 'Launch not found') {
-      res.status(404).json({ error: error.message });
-      return;
-    }
-    handleValidationError(error, res);
-  } else {
-    res.status(400).json({ error: 'Invalid request' });
-  }
-};
 
 router.post('/', (req: Request, res: Response) => {
   logger.info('Routes', 'POST /launches');
@@ -40,7 +15,7 @@ router.post('/', (req: Request, res: Response) => {
     res.status(201).json(launch);
   } catch (error) {
     logger.error('Routes', 'POST /launches - Failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    handleServiceError(error, res);
+    handleServiceError(error, res, 'Launch not found');
   }
 });
 
@@ -76,7 +51,7 @@ router.put('/:id', (req: Request, res: Response) => {
     res.status(200).json(launch);
   } catch (error) {
     logger.error('Routes', 'PUT /launches/:id - Failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    handleServiceError(error, res);
+    handleServiceError(error, res, 'Launch not found');
   }
 });
 

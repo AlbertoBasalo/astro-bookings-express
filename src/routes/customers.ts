@@ -1,7 +1,8 @@
 import { Router, type Request, type Response } from 'express';
 import { customerService } from '../services/customerService.js';
-import type { CreateCustomerRequest, UpdateCustomerRequest, ValidationError } from '../types/customer.js';
+import type { CreateCustomerRequest, UpdateCustomerRequest } from '../types/customer.js';
 import { logger } from '../utils/logger.js';
+import { handleServiceError } from '../utils/routeHelpers.js';
 
 const router = Router();
 
@@ -9,27 +10,6 @@ const extractEmail = (params: Request['params'], key: string): string => {
   const value = params[key];
   const email = Array.isArray(value) ? value[0] : value;
   return decodeURIComponent(email);
-};
-
-const handleValidationError = (error: Error, res: Response): void => {
-  try {
-    const validationErrors = JSON.parse(error.message) as ValidationError[];
-    res.status(400).json({ errors: validationErrors });
-  } catch {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-const handleServiceError = (error: unknown, res: Response): void => {
-  if (error instanceof Error) {
-    if (error.message === 'Customer not found') {
-      res.status(404).json({ error: error.message });
-      return;
-    }
-    handleValidationError(error, res);
-  } else {
-    res.status(400).json({ error: 'Invalid request' });
-  }
 };
 
 router.post('/', (req: Request, res: Response) => {
@@ -41,7 +21,7 @@ router.post('/', (req: Request, res: Response) => {
     res.status(201).json(customer);
   } catch (error) {
     logger.error('Routes', 'POST /customers - Failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    handleServiceError(error, res);
+    handleServiceError(error, res, 'Customer not found');
   }
 });
 
@@ -77,7 +57,7 @@ router.put('/:email', (req: Request, res: Response) => {
     res.status(200).json(customer);
   } catch (error) {
     logger.error('Routes', 'PUT /customers/:email - Failed', { error: error instanceof Error ? error.message : 'Unknown error' });
-    handleServiceError(error, res);
+    handleServiceError(error, res, 'Customer not found');
   }
 });
 
