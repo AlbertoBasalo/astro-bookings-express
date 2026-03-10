@@ -3,6 +3,7 @@ import { logger } from '../utils/logger.js';
 import { rocketService } from './rocketService.js';
 
 const LAUNCH_NOT_FOUND_ERROR = 'Launch not found';
+const ROCKET_NOT_FOUND_ERROR = 'Rocket not found';
 
 class LaunchService {
   private launches: Map<string, Launch> = new Map();
@@ -30,6 +31,23 @@ class LaunchService {
     const date = new Date(dateString);
     const now = new Date();
     return date < now;
+  }
+
+  private getRocketOrThrow(rocketId: string) {
+    const rocket = rocketService.getRocketById(rocketId);
+    if (!rocket) {
+      throw new Error(ROCKET_NOT_FOUND_ERROR);
+    }
+    return rocket;
+  }
+
+  private buildUpdateData(existingLaunch: Launch, data: UpdateLaunchRequest): CreateLaunchRequest {
+    return {
+      rocketId: existingLaunch.rocketId,
+      launchDateTime: data.launchDateTime ?? existingLaunch.launchDateTime,
+      price: data.price ?? existingLaunch.price,
+      minPassengers: data.minPassengers ?? existingLaunch.minPassengers,
+    };
   }
 
   validateLaunchData(data: Partial<CreateLaunchRequest>): ValidationError[] {
@@ -93,10 +111,7 @@ class LaunchService {
       throw new Error(JSON.stringify(errors));
     }
 
-    const rocket = rocketService.getRocketById(data.rocketId);
-    if (!rocket) {
-      throw new Error('Rocket not found'); // Should not happen after validation
-    }
+    const rocket = this.getRocketOrThrow(data.rocketId);
 
     const launch: Launch = {
       id: this.generateId(),
@@ -139,12 +154,7 @@ class LaunchService {
     }
 
     // Build the updated data, preserving rocketId as it's not updatable
-    const updatedData: CreateLaunchRequest = {
-      rocketId: existingLaunch.rocketId,
-      launchDateTime: data.launchDateTime ?? existingLaunch.launchDateTime,
-      price: data.price ?? existingLaunch.price,
-      minPassengers: data.minPassengers ?? existingLaunch.minPassengers,
-    };
+    const updatedData = this.buildUpdateData(existingLaunch, data);
 
     const errors = this.validateLaunchData(updatedData);
     if (errors.length > 0) {
@@ -152,17 +162,14 @@ class LaunchService {
       throw new Error(JSON.stringify(errors));
     }
 
-    const rocket = rocketService.getRocketById(existingLaunch.rocketId);
-    if (!rocket) {
-      throw new Error('Rocket not found'); // Should not happen
-    }
+    this.getRocketOrThrow(existingLaunch.rocketId);
 
     const updatedLaunch: Launch = {
       ...existingLaunch,
       launchDateTime: updatedData.launchDateTime,
       price: updatedData.price,
       minPassengers: updatedData.minPassengers,
-      availableSeats: rocket.capacity, // Recalculate based on rocket capacity
+      availableSeats: data.availableSeats !== undefined ? data.availableSeats : existingLaunch.availableSeats,
     };
 
     this.launches.set(id, updatedLaunch);

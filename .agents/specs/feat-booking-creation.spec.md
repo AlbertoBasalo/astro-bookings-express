@@ -2,7 +2,7 @@
 
 - **Reference**: [PRD](../PRD.md) FR4 Booking Creation
 - **Type**: feat
-- **Status**: Draft
+- **Status**: Released
 
 ## Problem Description
 
@@ -58,16 +58,16 @@ Bookings reference customers by email and launches by ID.
 
 ## Acceptance Criteria
 
-- [ ] WHEN a POST request is received at `/bookings` with valid `customerEmail`, `launchId`, and `seats` THEN THE system SHALL create the booking, update launch available seats, calculate total price, and return status 201 with the booking data.
-- [ ] WHEN a POST request is received at `/bookings` with a non-existent `customerEmail` THEN THE system SHALL return status 400 with error message "Customer not found".
-- [ ] WHEN a POST request is received at `/bookings` with a non-existent `launchId` THEN THE system SHALL return status 400 with error message "Launch not found".
-- [ ] WHEN a POST request is received at `/bookings` where `seats` exceeds available seats on the launch THEN THE system SHALL return status 400 with error message "Not enough available seats".
-- [ ] WHEN a POST request is received at `/bookings` with invalid `seats` (zero, negative, or non-integer) THEN THE system SHALL return status 400 with validation error.
-- [ ] WHEN a POST request is received at `/bookings` with missing required fields THEN THE system SHALL return status 400 with all validation errors.
-- [ ] WHEN a GET request is received at `/bookings` THEN THE system SHALL return status 200 with an array of all booking records including calculated total prices.
-- [ ] WHEN a GET request is received at `/bookings/:id` with an existing booking ID THEN THE system SHALL return status 200 with the booking data.
-- [ ] WHEN a GET request is received at `/bookings/:id` with a non-existent booking ID THEN THE system SHALL return status 404.
-- [ ] WHEN a PUT request is received at `/bookings/:id` with valid seat count changes THEN THE system SHALL update the booking, adjust launch available seats accordingly, recalculate total price, and return status 200 with updated data.
-- [ ] WHEN a DELETE request is received at `/bookings/:id` with an existing booking ID THEN THE system SHALL remove the booking, restore seats to launch available seats, and return status 204.
-- [ ] WHERE booking creation THE system SHALL decrement the launch available seats by the number of booked seats.
-- [ ] WHERE booking deletion THE system SHALL increment the launch available seats by the number of released seats.
+- [x] WHEN a POST request is received at `/bookings` with valid `customerEmail`, `launchId`, and `seats` THEN THE system SHALL create the booking, update launch available seats, calculate total price, and return status 201 with the booking data.
+- [x] WHEN a POST request is received at `/bookings` with a non-existent `customerEmail` THEN THE system SHALL return status 400 with error message "Customer not found".
+- [x] WHEN a POST request is received at `/bookings` with a non-existent `launchId` THEN THE system SHALL return status 400 with error message "Launch not found".
+- [x] WHEN a POST request is received at `/bookings` where `seats` exceeds available seats on the launch THEN THE system SHALL return status 400 with error message "Not enough available seats".
+- [x] WHEN a POST request is received at `/bookings` with invalid `seats` (zero, negative, or non-integer) THEN THE system SHALL return status 400 with validation error.
+- [x] WHEN a POST request is received at `/bookings` with missing required fields THEN THE system SHALL return status 400 with all validation errors.
+- [x] WHEN a GET request is received at `/bookings` THEN THE system SHALL return status 200 with an array of all booking records including calculated total prices.
+- [x] WHEN a GET request is received at `/bookings/:id` with an existing booking ID THEN THE system SHALL return status 200 with the booking data.
+- [x] WHEN a GET request is received at `/bookings/:id` with a non-existent booking ID THEN THE system SHALL return status 404.
+- [x] WHEN a PUT request is received at `/bookings/:id` with valid seat count changes THEN THE system SHALL update the booking, adjust launch available seats accordingly, recalculate total price, and return status 200 with updated data.
+- [x] WHEN a DELETE request is received at `/bookings/:id` with an existing booking ID THEN THE system SHALL remove the booking, restore seats to launch available seats, and return status 204.
+- [x] WHERE booking creation THE system SHALL decrement the launch available seats by the number of booked seats.
+- [x] WHERE booking deletion THE system SHALL increment the launch available seats by the number of released seats.

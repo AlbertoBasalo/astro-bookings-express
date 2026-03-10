@@ -11,6 +11,17 @@ const EMAIL_EXISTS_ERROR = 'Email already exists';
 class CustomerService {
   private customers: Map<string, Customer> = new Map();
 
+  private emailExists(email: string): boolean {
+    return this.customers.has(email.trim());
+  }
+
+  private isEmailUpdateConflict(email: string, isUpdate: boolean, currentEmail?: string): boolean {
+    if (!isUpdate) {
+      return this.emailExists(email);
+    }
+    return currentEmail !== email && this.emailExists(email);
+  }
+
   validateCustomerData(data: Partial<CreateCustomerRequest>, isUpdate = false, currentEmail?: string): ValidationError[] {
     const errors: ValidationError[] = [];
 
@@ -19,9 +30,7 @@ class CustomerService {
         errors.push({ field: 'email', message: 'Email is required' });
       } else if (!EMAIL_REGEX.test(data.email.trim()) || data.email.includes('@@')) {
         errors.push({ field: 'email', message: 'Invalid email format' });
-      } else if (isUpdate && currentEmail !== data.email && this.customers.has(data.email.trim())) {
-        errors.push({ field: 'email', message: EMAIL_EXISTS_ERROR });
-      } else if (!isUpdate && this.customers.has(data.email.trim())) {
+      } else if (this.isEmailUpdateConflict(data.email, isUpdate, currentEmail)) {
         errors.push({ field: 'email', message: EMAIL_EXISTS_ERROR });
       }
     } else if (!isUpdate) {

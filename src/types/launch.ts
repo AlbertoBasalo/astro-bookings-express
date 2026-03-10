@@ -14,7 +14,9 @@ export interface CreateLaunchRequest {
   minPassengers: number;
 }
 
-export interface UpdateLaunchRequest extends Partial<Omit<CreateLaunchRequest, 'rocketId'>> {}
+export interface UpdateLaunchRequest extends Partial<Omit<CreateLaunchRequest, 'rocketId'>> {
+  availableSeats?: number;
+}
 
 export interface ValidationError {
   field: string;
