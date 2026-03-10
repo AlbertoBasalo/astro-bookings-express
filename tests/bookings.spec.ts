@@ -16,7 +16,8 @@ test.describe('Bookings API - Acceptance Criteria', () => {
 
   // Helper function to create a test customer
   async function createTestCustomer(request: any, email?: string) {
-    const uniqueEmail = email || `test.customer.${Date.now()}@example.com`;
+    const uniqueSuffix = `${Date.now()}.${Math.random().toString(36).slice(2, 10)}`;
+    const uniqueEmail = email || `test.customer.${uniqueSuffix}@example.com`;
     const response = await request.post('/customers', {
       data: {
         email: uniqueEmail,

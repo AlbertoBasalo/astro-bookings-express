@@ -1,11 +1,15 @@
 import { expect, test } from '@playwright/test';
 
+const runId = `${Date.now()}.${Math.random().toString(36).slice(2, 10)}`;
+const uniqueEmail = (localPart: string): string => `${localPart}.${runId}@example.com`;
+
 test.describe('Customers API - Acceptance Criteria', () => {
   test.describe('POST /customers', () => {
     test('AC1: should create a new customer with valid data and return 201', async ({ request }) => {
+      const email = uniqueEmail('john.doe');
       const response = await request.post('/customers', {
         data: {
-          email: 'john.doe@example.com',
+          email,
           name: 'John Doe',
           phone: '+1234567890'
         }
@@ -13,7 +17,7 @@ test.describe('Customers API - Acceptance Criteria', () => {
 
       expect(response.status()).toBe(201);
       const customer = await response.json();
-      expect(customer).toHaveProperty('email', 'john.doe@example.com');
+      expect(customer).toHaveProperty('email', email);
       expect(customer).toHaveProperty('name', 'John Doe');
       expect(customer).toHaveProperty('phone', '+1234567890');
     });
@@ -139,11 +143,12 @@ test.describe('Customers API - Acceptance Criteria', () => {
     });
 
     test('AC9: should accept valid email formats', async ({ request }) => {
+      const suffix = `${Date.now()}.${Math.random().toString(36).slice(2, 10)}`;
       const validEmails = [
-        'simple@example.com',
-        'test.user@example.com',
-        'test+tag@example.co.uk',
-        'user123@test-domain.com'
+        `simple.${suffix}@example.com`,
+        `test.user.${suffix}@example.com`,
+        `test+tag.${suffix}@example.co.uk`,
+        `user123.${suffix}@test-domain.com`
       ];
 
       for (const email of validEmails) {
@@ -390,8 +395,10 @@ test.describe('Customers API - Acceptance Criteria', () => {
     });
 
     test('should allow changing email to a new unique email', async ({ request }) => {
+      const originalEmail = uniqueEmail('oldemail');
+      const newEmail = uniqueEmail('newemail');
       const originalData = {
-        email: 'oldemail@example.com',
+        email: originalEmail,
         name: 'Customer Name',
         phone: '+5555555555'
       };
@@ -402,20 +409,20 @@ test.describe('Customers API - Acceptance Criteria', () => {
       // Update email
       const response = await request.put(`/customers/${encodeURIComponent(originalData.email)}`, {
         data: {
-          email: 'newemail@example.com'
+          email: newEmail
         }
       });
 
       expect(response.status()).toBe(200);
       const customer = await response.json();
-      expect(customer.email).toBe('newemail@example.com');
+      expect(customer.email).toBe(newEmail);
 
       // Verify old email no longer exists
       const oldResponse = await request.get(`/customers/${encodeURIComponent(originalData.email)}`);
       expect(oldResponse.status()).toBe(404);
 
       // Verify new email exists
-      const newResponse = await request.get('/customers/newemail@example.com');
+      const newResponse = await request.get(`/customers/${encodeURIComponent(newEmail)}`);
       expect(newResponse.status()).toBe(200);
     });
   });

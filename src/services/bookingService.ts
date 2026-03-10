@@ -41,7 +41,7 @@ class BookingService {
   }
 
   private validateAndThrow(data: CreateBookingRequest): void {
-    const errors = this.validateBookingData(data);
+    const errors = this.validateBookingData(data, true);
     if (errors.length > 0) {
       logger.error('BookingService', 'Validation failed', { errors });
       this.throwValidationErrors(errors);
@@ -94,7 +94,7 @@ class BookingService {
    * @param data - Booking data to validate
    * @returns Array of validation errors (empty if valid)
    */
-  private validateBookingData(data: CreateBookingRequest): ValidationError[] {
+  private validateBookingData(data: CreateBookingRequest, validateAvailability: boolean): ValidationError[] {
     const errors: ValidationError[] = [];
 
     // Validate customerEmail
@@ -128,7 +128,16 @@ class BookingService {
     }
 
     // Validate seat availability (only if we have valid launch and seats)
-    if (data.launchId && data.seats && Number.isInteger(data.seats) && data.seats >= MIN_SEATS && data.seats <= MAX_SEATS) {
+    if (
+      validateAvailability &&
+      data.launchId &&
+      data.launchId.trim() !== '' &&
+      data.seats !== undefined &&
+      data.seats !== null &&
+      Number.isInteger(data.seats) &&
+      data.seats >= MIN_SEATS &&
+      data.seats <= MAX_SEATS
+    ) {
       const launch = launchService.getLaunchById(data.launchId.trim());
       if (launch && data.seats > launch.availableSeats) {
         errors.push({ field: 'seats', message: NOT_ENOUGH_SEATS_ERROR });
@@ -197,7 +206,7 @@ class BookingService {
     this.ensureSeatIncreaseIsAvailable(existingBooking.launchId, seatDifference);
 
     // Validate the complete booking data
-    const errors = this.validateBookingData(fullData);
+    const errors = this.validateBookingData(fullData, false);
     if (errors.length > 0) {
       logger.error('BookingService', 'Validation failed on update', { errors });
       this.throwValidationErrors(errors);
