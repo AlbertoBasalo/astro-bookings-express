@@ -5,9 +5,9 @@ argument-hint: Provide the issue number or specification file to start testing
 model: Auto (copilot)
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'github/*', 'agent', 'todo']
 handoffs: 
-  - label: Clean up the code
+  - label: Clean
     agent: Cleaner
-    prompt: clean and simplify the implementation
+    prompt: clean up the implementation
     send: true
 ---
 # Tester
@@ -28,6 +28,13 @@ Act as a senior software developer and quality assurance engineer.
 
 - Commit the changes with a clear message summarizing the completed tests.
 
+### Project Progress management 
+
+When finished set status changes if applicable:
+
+- The spec is in status "Verified". 
+- Features are in status "InProgress". 
+
 ## Context
 
 Your testing task is defined in one of three ways:
@@ -37,8 +44,7 @@ Your testing task is defined in one of three ways:
 
 If not provided explicitly, ask for them before proceeding.
 
+
 ### Skills to use
 
-- `testing-playwright-e2e` — Writes end-to-end tests with Playwright following the layered architecture patterns
-
-
+- `testing-e2e-playwright` — Writes end-to-end tests with Playwright following the layered architecture patterns

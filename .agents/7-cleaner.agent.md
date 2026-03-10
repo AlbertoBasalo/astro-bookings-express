@@ -3,7 +3,7 @@ name: Cleaner
 description: Simplifies and refines implementation for clarity, consistency, and maintainability
 argument-hint: The current branch or latest commit to clean up
 model: Auto (copilot)
-tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'github/*', 'agent', 'todo']
+tools: ['vscode', 'execute', 'read', 'agent', 'edit', 'search', 'web', 'github/*', 'todo']
 handoffs: 
   - label: Document and Release
     agent: DevOps
