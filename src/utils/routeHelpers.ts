@@ -7,9 +7,20 @@ import type { ValidationError } from '../types/booking.js';
  * @param key - Parameter key to extract
  * @returns The parameter value as a string
  */
-export const extractId = (params: Request['params'], key: string): string => {
+export const extractParam = (params: Request['params'], key: string): string => {
   const value = params[key];
   return Array.isArray(value) ? value[0] : value;
+};
+
+export const extractId = (params: Request['params'], key: string): string => extractParam(params, key);
+
+export const extractDecodedParam = (params: Request['params'], key: string): string => {
+  const value = extractParam(params, key);
+  return decodeURIComponent(value);
+};
+
+export const respondNotFound = (res: Response, message: string): void => {
+  res.status(404).json({ error: message });
 };
 
 /**

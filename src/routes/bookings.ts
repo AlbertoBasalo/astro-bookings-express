@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from 'express';
 import { bookingService } from '../services/bookingService.js';
 import type { CreateBookingRequest, UpdateBookingRequest } from '../types/booking.js';
 import { logger } from '../utils/logger.js';
-import { extractId, handleServiceError } from '../utils/routeHelpers.js';
+import { extractId, handleServiceError, respondNotFound } from '../utils/routeHelpers.js';
 
 const router = Router();
 
@@ -33,7 +33,7 @@ router.get('/:id', (req: Request, res: Response) => {
 
   if (!booking) {
     logger.warn('Routes', `GET /bookings/${id} - Not found`);
-    res.status(404).json({ error: 'Booking not found' });
+    respondNotFound(res, 'Booking not found');
     return;
   }
 
@@ -62,7 +62,7 @@ router.delete('/:id', (req: Request, res: Response) => {
 
   if (!deleted) {
     logger.warn('Routes', `DELETE /bookings/${id} - Not found`);
-    res.status(404).json({ error: 'Booking not found' });
+    respondNotFound(res, 'Booking not found');
     return;
   }
 

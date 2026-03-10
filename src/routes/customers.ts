@@ -2,15 +2,9 @@ import { Router, type Request, type Response } from 'express';
 import { customerService } from '../services/customerService.js';
 import type { CreateCustomerRequest, UpdateCustomerRequest } from '../types/customer.js';
 import { logger } from '../utils/logger.js';
-import { handleServiceError } from '../utils/routeHelpers.js';
+import { extractDecodedParam, handleServiceError, respondNotFound } from '../utils/routeHelpers.js';
 
 const router = Router();
-
-const extractEmail = (params: Request['params'], key: string): string => {
-  const value = params[key];
-  const email = Array.isArray(value) ? value[0] : value;
-  return decodeURIComponent(email);
-};
 
 router.post('/', (req: Request, res: Response) => {
   logger.info('Routes', 'POST /customers');
@@ -33,13 +27,13 @@ router.get('/', (req: Request, res: Response) => {
 });
 
 router.get('/:email', (req: Request, res: Response) => {
-  const email = extractEmail(req.params, 'email');
+  const email = extractDecodedParam(req.params, 'email');
   logger.info('Routes', `GET /customers/${email}`);
   const customer = customerService.getCustomerByEmail(email);
 
   if (!customer) {
     logger.warn('Routes', `GET /customers/${email} - Not found`);
-    res.status(404).json({ error: 'Customer not found' });
+    respondNotFound(res, 'Customer not found');
     return;
   }
 
@@ -49,7 +43,7 @@ router.get('/:email', (req: Request, res: Response) => {
 
 router.put('/:email', (req: Request, res: Response) => {
   try {
-    const email = extractEmail(req.params, 'email');
+    const email = extractDecodedParam(req.params, 'email');
     logger.info('Routes', `PUT /customers/${email}`);
     const data = req.body as UpdateCustomerRequest;
     const customer = customerService.updateCustomer(email, data);
@@ -62,13 +56,13 @@ router.put('/:email', (req: Request, res: Response) => {
 });
 
 router.delete('/:email', (req: Request, res: Response) => {
-  const email = extractEmail(req.params, 'email');
+  const email = extractDecodedParam(req.params, 'email');
   logger.info('Routes', `DELETE /customers/${email}`);
   const deleted = customerService.deleteCustomer(email);
 
   if (!deleted) {
     logger.warn('Routes', `DELETE /customers/${email} - Not found`);
-    res.status(404).json({ error: 'Customer not found' });
+    respondNotFound(res, 'Customer not found');
     return;
   }
 

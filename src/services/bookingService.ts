@@ -28,6 +28,49 @@ class BookingService {
     return seats * launchPrice;
   }
 
+  private getLaunchOrThrow(launchId: string) {
+    const launch = launchService.getLaunchById(launchId);
+    if (!launch) {
+      throw new Error(LAUNCH_NOT_FOUND_ERROR);
+    }
+    return launch;
+  }
+
+  private throwValidationErrors(errors: ValidationError[]): never {
+    throw new Error(JSON.stringify(errors));
+  }
+
+  private validateAndThrow(data: CreateBookingRequest): void {
+    const errors = this.validateBookingData(data);
+    if (errors.length > 0) {
+      logger.error('BookingService', 'Validation failed', { errors });
+      this.throwValidationErrors(errors);
+    }
+  }
+
+  private buildUpdateData(existingBooking: Booking, data: UpdateBookingRequest): CreateBookingRequest {
+    return {
+      customerEmail: existingBooking.customerEmail,
+      launchId: existingBooking.launchId,
+      seats: data.seats ?? existingBooking.seats,
+    };
+  }
+
+  private ensureSeatIncreaseIsAvailable(launchId: string, seatDifference: number): void {
+    if (seatDifference <= 0) {
+      return;
+    }
+
+    const launch = this.getLaunchOrThrow(launchId);
+    if (seatDifference > launch.availableSeats) {
+      logger.error('BookingService', 'Not enough available seats for update', {
+        requested: seatDifference,
+        available: launch.availableSeats,
+      });
+      this.throwValidationErrors([{ field: 'seats', message: NOT_ENOUGH_SEATS_ERROR }]);
+    }
+  }
+
   /**
    * Updates the available seats for a launch.
    * @param launchId - The launch ID
@@ -97,23 +140,20 @@ class BookingService {
 
   createBooking(data: CreateBookingRequest): Booking {
     logger.info('BookingService', 'Creating booking', { customerEmail: data.customerEmail, launchId: data.launchId });
-    
-    const errors = this.validateBookingData(data);
-    if (errors.length > 0) {
-      logger.error('BookingService', 'Validation failed', { errors });
-      throw new Error(JSON.stringify(errors));
-    }
+
+    this.validateAndThrow(data);
 
     // Launch exists per validation
-    const launch = launchService.getLaunchById(data.launchId.trim())!;
+    const launchId = data.launchId.trim();
+    const launch = this.getLaunchOrThrow(launchId);
 
     // Update launch available seats
-    this.updateLaunchSeats(data.launchId.trim(), data.seats);
+    this.updateLaunchSeats(launchId, data.seats);
 
     const booking: Booking = {
       id: this.generateId(),
       customerEmail: data.customerEmail.trim(),
-      launchId: data.launchId.trim(),
+      launchId,
       seats: data.seats,
       totalPrice: this.calculateTotalPrice(data.seats, launch.price),
     };
@@ -143,40 +183,24 @@ class BookingService {
 
   updateBooking(id: string, data: UpdateBookingRequest): Booking {
     logger.info('BookingService', 'Updating booking', { id });
-    
+
     const existingBooking = this.bookings.get(id);
     if (!existingBooking) {
       logger.error('BookingService', 'Booking not found for update', { id });
       throw new Error(BOOKING_NOT_FOUND_ERROR);
     }
 
-    // Build complete booking data for validation
-    const fullData: CreateBookingRequest = {
-      customerEmail: existingBooking.customerEmail,
-      launchId: existingBooking.launchId,
-      seats: data.seats ?? existingBooking.seats,
-    };
+    const fullData = this.buildUpdateData(existingBooking, data);
 
     // Calculate seat difference and check availability before validation
     const seatDifference = fullData.seats - existingBooking.seats;
-    if (seatDifference !== 0) {
-      const launch = launchService.getLaunchById(existingBooking.launchId)!;
-      
-      // Check if we have enough seats for the increase
-      if (seatDifference > 0 && seatDifference > launch.availableSeats) {
-        logger.error('BookingService', 'Not enough available seats for update', { 
-          requested: seatDifference, 
-          available: launch.availableSeats 
-        });
-        throw new Error(JSON.stringify([{ field: 'seats', message: NOT_ENOUGH_SEATS_ERROR }]));
-      }
-    }
+    this.ensureSeatIncreaseIsAvailable(existingBooking.launchId, seatDifference);
 
     // Validate the complete booking data
     const errors = this.validateBookingData(fullData);
     if (errors.length > 0) {
       logger.error('BookingService', 'Validation failed on update', { errors });
-      throw new Error(JSON.stringify(errors));
+      this.throwValidationErrors(errors);
     }
 
     // Update launch available seats if seats changed
@@ -185,7 +209,7 @@ class BookingService {
     }
 
     // Launch exists per validation
-    const launch = launchService.getLaunchById(existingBooking.launchId)!;
+    const launch = this.getLaunchOrThrow(existingBooking.launchId);
 
     const updatedBooking: Booking = {
       ...existingBooking,

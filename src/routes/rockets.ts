@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from 'express';
 import { rocketService } from '../services/rocketService.js';
 import type { CreateRocketRequest, UpdateRocketRequest } from '../types/rocket.js';
 import { logger } from '../utils/logger.js';
-import { extractId, handleServiceError } from '../utils/routeHelpers.js';
+import { extractId, handleServiceError, respondNotFound } from '../utils/routeHelpers.js';
 
 const router = Router();
 
@@ -33,7 +33,7 @@ router.get('/:id', (req: Request, res: Response) => {
 
   if (!rocket) {
     logger.warn('Routes', `GET /rockets/${id} - Not found`);
-    res.status(404).json({ error: 'Rocket not found' });
+    respondNotFound(res, 'Rocket not found');
     return;
   }
 
@@ -62,7 +62,7 @@ router.delete('/:id', (req: Request, res: Response) => {
 
   if (!deleted) {
     logger.warn('Routes', `DELETE /rockets/${id} - Not found`);
-    res.status(404).json({ error: 'Rocket not found' });
+    respondNotFound(res, 'Rocket not found');
     return;
   }
 

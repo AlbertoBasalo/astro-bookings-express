@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from 'express';
 import { launchService } from '../services/launchService.js';
 import type { CreateLaunchRequest, UpdateLaunchRequest } from '../types/launch.js';
 import { logger } from '../utils/logger.js';
-import { extractId, handleServiceError } from '../utils/routeHelpers.js';
+import { extractId, handleServiceError, respondNotFound } from '../utils/routeHelpers.js';
 
 const router = Router();
 
@@ -33,7 +33,7 @@ router.get('/:id', (req: Request, res: Response) => {
 
   if (!launch) {
     logger.warn('Routes', `GET /launches/${id} - Not found`);
-    res.status(404).json({ error: 'Launch not found' });
+    respondNotFound(res, 'Launch not found');
     return;
   }
 
@@ -62,7 +62,7 @@ router.delete('/:id', (req: Request, res: Response) => {
 
   if (!deleted) {
     logger.warn('Routes', `DELETE /launches/${id} - Not found`);
-    res.status(404).json({ error: 'Launch not found' });
+    respondNotFound(res, 'Launch not found');
     return;
   }
 
