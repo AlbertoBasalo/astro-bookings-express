@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-03-10
+
+### Added
+- Booking Management API `/bookings` with full CRUD operations
+  - POST `/bookings` - Create booking with seat allocation and total price calculation
+  - GET `/bookings` - List all bookings
+  - GET `/bookings/:id` - Retrieve specific booking by ID
+  - PUT `/bookings/:id` - Update booking seat count with seat reallocation
+  - DELETE `/bookings/:id` - Cancel booking and restore launch seats
+- Booking business rules and validation:
+  - Existing customer and launch references are required
+  - Seats must be an integer between 1 and 10
+  - Seat requests cannot exceed launch available seats
+  - Total price is derived as `seats * launch.price`
+- Booking unit and E2E test coverage for acceptance criteria
+
+### Changed
+- Route utilities consolidated for parameter extraction and not-found responses
+- Service internals cleaned for readability and reduced duplication (booking, launch, customer services)
+- PRD and booking specification status updated to reflect implementation release
+
+### Fixed
+- None
+
 ## [0.4.0] - 2026-01-22
 
 ### Added

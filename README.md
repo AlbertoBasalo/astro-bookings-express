@@ -99,4 +99,11 @@ The server listens on `http://localhost:3000` and responds with a small JSON pay
 - `PUT /customers/:email` - Update an existing customer
 - `DELETE /customers/:email` - Delete a customer
 
-See specifications in [specs/](specs/) folder for detailed API documentation.
+**Bookings**
+- `GET /bookings` - Retrieve all bookings
+- `GET /bookings/:id` - Retrieve a specific booking by ID
+- `POST /bookings` - Create a new booking (requires: customerEmail, launchId, seats)
+- `PUT /bookings/:id` - Update an existing booking
+- `DELETE /bookings/:id` - Delete a booking
+
+See specifications in [.agents/specs/](.agents/specs/) for detailed API documentation.
