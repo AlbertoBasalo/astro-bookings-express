@@ -77,6 +77,8 @@ npm run start
 - Return 201 create, 200 read or update, and 204 delete.
 - Return 400 for validation failures and 404 for missing records.
 - Use logger info, warn, and error methods for service events.
+- For launch lifecycle, enforce explicit state transitions in launch service.
+- For payments, use an internal mock adapter and keep seat updates consistent.
 - Do not revert unrelated local changes.
 
 ## Naming Conventions

@@ -1,369 +1,383 @@
-# AstroBookings Architectural Design Document
+# AstroBookings Architecture Design Document (ADD)
 
-Backend API for a fictional space travel booking system demonstrating RESTful API design, TypeScript best practices, and business logic patterns for training and educational purposes.
+This document defines the architecture of AstroBookings as a brownfield training API.
+It reflects current implementation reality and the target evolution for pending features.
 
 ## Table of Contents
 
-- [AstroBookings Architectural Design Document](#astrobookings-architectural-design-document)
+- [AstroBookings Architecture Design Document (ADD)](#astrobookings-architecture-design-document-add)
   - [Table of Contents](#table-of-contents)
-  - [Stack and tooling](#stack-and-tooling)
-    - [Technology Stack](#technology-stack)
-    - [Development Tools](#development-tools)
-    - [Development Workflow](#development-workflow)
-  - [Systems Architecture](#systems-architecture)
-    - [Overview](#overview)
-    - [System Components](#system-components)
-    - [Component Interactions](#component-interactions)
-  - [Software Architecture](#software-architecture)
-    - [Architecture Pattern: Layered Architecture](#architecture-pattern-layered-architecture)
-    - [Design Patterns](#design-patterns)
-    - [Data Flow](#data-flow)
-    - [Testing Architecture](#testing-architecture)
-    - [Folder Structure Philosophy](#folder-structure-philosophy)
-  - [Architecture Decisions Record (ADR)](#architecture-decisions-record-adr)
-    - [ADR 1: In-Memory Storage Only](#adr-1-in-memory-storage-only)
-    - [ADR 2: Layered Monolithic Architecture](#adr-2-layered-monolithic-architecture)
-    - [ADR 3: TypeScript Strict Mode with Explicit Types](#adr-3-typescript-strict-mode-with-explicit-types)
-    - [ADR 4: Express 5 with Native Async Support](#adr-4-express-5-with-native-async-support)
-    - [ADR 5: Dual Testing Strategy with Playwright and Vitest](#adr-5-dual-testing-strategy-with-playwright-and-vitest)
-    - [ADR 6: No Authentication or Authorization](#adr-6-no-authentication-or-authorization)
-    - [ADR 7: Resource-Based Folder Organization](#adr-7-resource-based-folder-organization)
-    - [ADR 8: Custom Logger Utility Instead of Framework](#adr-8-custom-logger-utility-instead-of-framework)
+  - [1. Purpose and Scope](#1-purpose-and-scope)
+  - [2. Brownfield Baseline](#2-brownfield-baseline)
+  - [3. Architecture Drivers](#3-architecture-drivers)
+  - [4. System Context](#4-system-context)
+  - [5. Component Architecture](#5-component-architecture)
+    - [5.1 High-level structure](#51-high-level-structure)
+    - [5.2 Logical component diagram](#52-logical-component-diagram)
+    - [5.3 Ownership and responsibilities](#53-ownership-and-responsibilities)
+  - [6. Runtime Flows](#6-runtime-flows)
+    - [6.1 Launch creation](#61-launch-creation)
+    - [6.2 Booking creation](#62-booking-creation)
+    - [6.3 Booking update and delete consistency](#63-booking-update-and-delete-consistency)
+  - [7. Data Design and Consistency](#7-data-design-and-consistency)
+  - [8. API and Error Contract](#8-api-and-error-contract)
+  - [9. Testing Strategy](#9-testing-strategy)
+  - [10. Operational Constraints](#10-operational-constraints)
+  - [11. Security Posture](#11-security-posture)
+  - [12. Evolution Plan for FR5 and FR6](#12-evolution-plan-for-fr5-and-fr6)
+    - [12.1 FR5 Launch lifecycle states](#121-fr5-launch-lifecycle-states)
+    - [12.2 FR6 Payment and refund processing](#122-fr6-payment-and-refund-processing)
+  - [13. Architecture Decision Records (Concise ADRs)](#13-architecture-decision-records-concise-adrs)
+    - [ADR-01 Layered monolith for clarity](#adr-01-layered-monolith-for-clarity)
+    - [ADR-02 In-memory Map storage](#adr-02-in-memory-map-storage)
+    - [ADR-03 Validation in services](#adr-03-validation-in-services)
+    - [ADR-04 Explicit HTTP contract](#adr-04-explicit-http-contract)
+    - [ADR-05 Dual test strategy](#adr-05-dual-test-strategy)
+    - [ADR-06 No auth and no real payments in core scope](#adr-06-no-auth-and-no-real-payments-in-core-scope)
+    - [ADR-07 FR5 state machine via domain rules](#adr-07-fr5-state-machine-via-domain-rules)
+    - [ADR-08 FR6 payment adapter with mock gateway](#adr-08-fr6-payment-adapter-with-mock-gateway)
 
-## Stack and tooling
+## 1. Purpose and Scope
 
-### Technology Stack
-- **Runtime**: Node.js >=18.18
-- **Language**: TypeScript 5.9.3 (strict mode, ESM modules)
-- **Framework**: Express 5.2.1 (minimalist web framework)
-- **Database**: In-memory Map-based storage (no persistence)
-- **Testing E2E**: Playwright 1.57.0 (end-to-end API testing)
-- **Testing Unit**: Vitest 3.1.0 (service layer unit testing)
-- **Type System**: Strict TypeScript with comprehensive interfaces
+AstroBookings is a training backend API for space travel booking operations.
+It provides REST resources for rockets, launches, customers, and bookings.
 
-### Development Tools
-- **Build Tool**: TypeScript Compiler (tsc)
-- **Dev Server**: tsx (TypeScript execution without build)
-- **Test Runners**: Playwright Test (E2E), Vitest (Unit)
-- **Version Control**: Git (main branch, GitHub remote)
-- **IDE Support**: Full TypeScript IntelliSense and type checking
-- **Logging**: Custom console-based logger utility
+This ADD covers:
+- Current architecture for implemented requirements (FR1-FR4, TR1-TR4).
+- Brownfield constraints and tradeoffs.
+- Controlled evolution path for FR5 (launch lifecycle) and FR6 (payment/refund).
 
-### Development Workflow
-```bash
-npm install       # Install dependencies
-npm run dev       # Development mode (tsx watch)
-npm run build     # Compile TypeScript to JavaScript
-npm run start     # Run production build
-npm run test      # Execute Playwright E2E tests
-npm run test:ui   # Interactive E2E test UI
-npm run test:unit # Execute Vitest unit tests  
-npm run test:dev  # Run Vitest in watch mode
-npm run test:all  # Run all tests (unit + E2E)
-npm run typecheck # Type-check without build
+This ADD does not introduce production infrastructure that is not present in code.
+
+## 2. Brownfield Baseline
+
+Implemented and stable:
+- Rocket CRUD with validation.
+- Launch CRUD linked to rockets, with future date, positive price, minPassengers validation.
+- Customer CRUD by email with format validation.
+- Booking CRUD with seat reservation, availableSeats updates, and totalPrice calculation.
+- TypeScript strict ESM + Express 5 layered flow.
+- In-memory Map storage with incremental IDs.
+- Unit tests (Vitest) + E2E tests (Playwright).
+
+Not implemented yet:
+- Launch lifecycle state machine (FR5).
+- Payment and refund processing behavior (FR6).
+
+## 3. Architecture Drivers
+
+Primary drivers:
+- Teaching value over production complexity.
+- Predictable REST behavior and explicit status codes.
+- Clear separation: routes -> services -> types.
+- Validation-first service layer.
+- Fast local setup with zero external dependencies.
+
+Key constraints:
+- No persistent database.
+- No authentication or authorization.
+- No real payment integration.
+- Keep existing folder structure and coding style.
+
+## 4. System Context
+
+Actors:
+- API consumers (training participants, test suites, demo clients).
+
+External systems:
+- None required at runtime.
+
+Boundary:
+- Single Node.js process exposing HTTP endpoints.
+- All state is process memory and resets on restart.
+
+## 5. Component Architecture
+
+### 5.1 High-level structure
+
+- Entry point: Express app bootstrap.
+- Routes layer: HTTP resource endpoints.
+- Services layer: business rules, validation, state changes.
+- Types layer: request/entity contracts.
+- Utils layer: logging and route helper utilities.
+- Tests:
+  - Unit tests for services.
+  - E2E tests for API behavior.
+
+### 5.2 Logical component diagram
+
+```text
+Client/Test
+   |
+HTTP JSON
+   v
+Express App (src/index.ts)
+   |
+   +--> Routes (src/routes/*)
+           |
+           +--> Services (src/services/*)
+                    |
+                    +--> In-memory Maps + Incremental IDs
+
+Cross-cutting: logger + route helpers
+Verification: Vitest (unit) + Playwright (e2e)
 ```
 
-## Systems Architecture
+### 5.3 Ownership and responsibilities
 
-### Overview
-AstroBookings follows a **layered monolithic architecture** with clear separation of concerns:
-- HTTP layer (routes) handles request/response and status codes
-- Service layer contains business logic and validation
-- Type layer defines domain models and contracts
-- In-memory storage simulates data persistence
+Routes:
+- Parse input and params.
+- Delegate to services.
+- Map outcomes to HTTP status codes.
 
-### System Components
+Services:
+- Validate domain rules.
+- Enforce referential integrity (customer/launch/rocket references).
+- Manage seat consistency and total price calculations.
+- Emit domain-level errors consumed by route helpers.
 
-```
-┌─────────────────────────────────────────────────┐
-│            Client (HTTP Requests)               │
-└──────────────────┬──────────────────────────────┘
-                   │
-┌──────────────────▼──────────────────────────────┐
-│           Express Application                   │
-│  ┌───────────────────────────────────────────┐  │
-│  │  Middleware: JSON Parser                  │  │
-│  └───────────────────────────────────────────┘  │
-│  ┌───────────────────────────────────────────┐  │
-│  │  Routes Layer                             │  │
-│  │  - Health endpoints (/, /health)          │  │
-│  │  - Resource routes (/rockets, /launches)  │  │
-│  └──────────────┬────────────────────────────┘  │
-└─────────────────┼───────────────────────────────┘
-                  │
-┌─────────────────▼───────────────────────────────┐
-│           Service Layer                         │
-│  - Business logic                               │
-│  - Validation rules                             │
-│  - Data transformation                          │
-│  - In-memory storage management                 │
-└─────────────────┬───────────────────────────────┘
-                  │
-┌─────────────────▼───────────────────────────────┐
-│           Data Storage                          │
-│  - Map<string, Entity> collections              │
-│  - Auto-incrementing ID generation              │
-│  - No persistence (training/demo)               │
-└─────────────────────────────────────────────────┘
-```
+Types:
+- Define DTOs and entities for compile-time safety.
 
-### Component Interactions
-1. **HTTP Request** → Express routes receive and parse requests
-2. **Route Handler** → Extracts parameters, delegates to service layer
-3. **Service Layer** → Validates input, applies business rules, manages data
-4. **Storage** → Services interact with in-memory Map structures
-5. **Response** → Route handler formats response with appropriate HTTP status
+## 6. Runtime Flows
 
-## Software Architecture
+### 6.1 Launch creation
 
-### Architecture Pattern: Layered Architecture
+1. Validate rocket reference.
+2. Validate launchDateTime, price, minPassengers.
+3. Initialize availableSeats from rocket capacity.
+4. Return 201 with launch payload.
 
-**Layers:**
-1. **Presentation Layer** (`src/routes/`)
-   - Express router definitions
-   - Request/response handling
-   - HTTP status code management
-   - Error formatting
+### 6.2 Booking creation
 
-2. **Business Logic Layer** (`src/services/`)
-   - Domain validation
-   - Entity creation and manipulation
-   - Business rule enforcement
-   - Error handling with typed exceptions
+1. Validate customer and launch references.
+2. Validate seats range and seat availability.
+3. Decrease launch availableSeats.
+4. Compute totalPrice = seats x launch.price.
+5. Return 201 with booking payload.
 
-3. **Domain Model Layer** (`src/types/`)
-   - TypeScript interfaces and types
-   - Request/response contracts
-   - Validation error structures
-   - Domain enumerations
+### 6.3 Booking update and delete consistency
 
-4. **Utility Layer** (`src/utils/`)
-   - Cross-cutting concerns (logging)
-   - Helper functions
-   - Common utilities
+- Update recalculates seat difference and adjusts launch availableSeats.
+- Delete restores seats to launch before removing booking.
+- Missing entities return 404 through route-level mapping.
 
-### Design Patterns
+## 7. Data Design and Consistency
 
-**Service Pattern**
-- Services encapsulate business logic
-- Single responsibility per service
-- Stateful in-memory storage within service instances
-- Example: `RocketService` manages rocket CRUD operations
+Current in-memory stores:
+- rockets: Map<string, Rocket>
+- launches: Map<string, Launch>
+- customers: Map<string, Customer>
+- bookings: Map<string, Booking>
 
-**Repository Pattern** (Simplified)
-- Services act as repositories
-- Map-based storage simulates database operations
-- ID generation and entity lifecycle management
+Consistency rules currently enforced:
+- Launch references an existing rocket.
+- Booking references existing customer and launch.
+- Booking seat counts cannot exceed launch availability.
+- Launch availableSeats is adjusted on booking create/update/delete.
 
-**DTO Pattern** (Data Transfer Objects)
-- Separate request/response types from domain entities
-- `CreateRocketRequest`, `UpdateRocketRequest` for input
-- `Rocket` entity for output
-- `ValidationError` for error responses
+Known brownfield limitation:
+- Multi-entity updates are not transactional across process failures.
+- Acceptable for training due to in-memory and single-process scope.
 
-**Factory Pattern**
-- ID generation: `generateId()` methods in services
-- Entity construction with validation
+## 8. API and Error Contract
 
-### Data Flow
+HTTP conventions:
+- 201 on create.
+- 200 on read and update.
+- 204 on delete.
+- 400 on validation failures.
+- 404 on missing resources.
 
-**Create Entity Flow:**
-```
-POST /rockets
-  → Router extracts body
-  → Service validates data
-  → Service generates ID
-  → Service stores in Map
-  → Returns entity with 201 status
-```
+Validation behavior:
+- Services collect validation errors.
+- Validation errors are returned as structured arrays where applicable.
+- Route helpers normalize not-found and validation responses.
 
-**Read Entity Flow:**
-```
-GET /rockets/:id
-  → Router extracts ID parameter
-  → Service queries Map
-  → Returns entity with 200 or 404
-```
+## 9. Testing Strategy
 
-**Update Entity Flow:**
-```
-PUT /rockets/:id
-  → Router extracts ID and body
-  → Service validates existence
-  → Service validates updated data
-  → Service updates Map entry
-  → Returns updated entity with 200
-```
+Unit tests (Vitest):
+- Focus on service rules, validation, seat accounting, and edge cases.
 
-**Delete Entity Flow:**
-```
-DELETE /rockets/:id
-  → Router extracts ID parameter
-  → Service removes from Map
-  → Returns 204 No Content
-```
+E2E tests (Playwright):
+- Validate endpoint behavior, response codes, and workflow acceptance.
 
-### Testing Architecture
+Coverage intent:
+- Service logic correctness through fast unit feedback.
+- API contract confidence through end-to-end assertions.
 
-AstroBookings implements a **dual testing strategy** with distinct purposes aligned to the development workflow.
+## 10. Operational Constraints
 
-**Why Dual Testing?**
+Deployment model:
+- Local/dev single service process.
+- No container/orchestration assumptions in this architecture.
 
-The architecture uses two complementary testing approaches:
-- **Unit Tests (Vitest)**: Ensure code quality during implementation by validating business logic, validation rules, and edge cases in isolation
-- **E2E Tests (Playwright)**: Verify acceptance criteria from specifications by testing complete HTTP request/response cycles and API contracts
-- **Together**: Unit tests maintain code quality throughout development; E2E tests confirm specifications are met before deployment
+Runtime constraints:
+- State loss on restart.
+- Not horizontally scalable with in-memory state.
 
-**Test Responsibilities by Layer:**
+## 11. Security Posture
 
-| Layer | E2E Tests (Playwright) | Unit Tests (Vitest) |
-|-------|------------------------|---------------------|
-| Routes | ✓ HTTP status codes<br>✓ Request parsing<br>✓ Response formatting | ✗ (tested via E2E) |
-| Services | ✓ Integration behavior | ✓ Business logic<br>✓ Validation rules<br>✓ Error handling<br>✓ State management |
-| Types | ✓ Contract validation | ✗ (compile-time) |
+Security is intentionally minimal by product scope.
 
-**Testing Pyramid:**
+Current posture:
+- No authN/authZ.
+- No payment credentials.
+- No production hardening guarantees.
 
-```
-       ┌────────────┐
-       │  E2E (Few) │  → Verify acceptance criteria
-       ├────────────┤     Validate specifications
-       │ Unit (Many)│  → Ensure code quality
-       └────────────┘     Fast feedback during implementation
-```
+Implication:
+- Suitable for workshops and demos only.
 
-**When to Write Each:**
-- **Unit tests**: During implementation to ensure code quality - write as you build service methods, validation rules, and business logic
-- **E2E tests**: After implementation to verify acceptance criteria - confirm the feature meets specifications and API contracts
-- Both test types complement each other: unit tests guide development quality, E2E tests confirm specification compliance
+## 12. Evolution Plan for FR5 and FR6
 
-**Where Tests Live:**
-- **E2E Tests**: `tests/*.spec.ts` (separate directory, mirrors route structure)
-  - Example: `routes/rockets.ts` → `tests/rockets.spec.ts`
-- **Unit Tests**: `src/services/*.spec.ts` (colocated with services)
-  - Example: `rocketService.ts` → `rocketService.spec.ts`
+### 12.1 FR5 Launch lifecycle states
 
-**How to Run:**
-- `npm run test` - Execute E2E tests with Playwright
-- `npm run test:unit` - Execute unit tests with Vitest
-- `npm run test:dev` - Run Vitest in watch mode for development
-- `npm run test:all` - Run both test suites
+Planned model extension:
+- Add launchStatus field with states:
+  - scheduled
+  - confirmed
+  - successful
+  - cancelled
+  - suspended
 
-**Implementation Patterns:**
+Planned transition policy (service-enforced):
+- scheduled -> confirmed | cancelled | suspended
+- confirmed -> successful | cancelled | suspended
+- suspended -> confirmed | cancelled
+- successful -> terminal
+- cancelled -> terminal
 
-For concrete testing patterns, examples, and mocking strategies, see:
-- E2E patterns: [.agents/skills/testing-playwright-e2e/SKILL.md](.agents/skills/testing-playwright-e2e/SKILL.md)
-- Unit testing patterns: [.agents/skills/testing-unit-vitest/SKILL.md](.agents/skills/testing-unit-vitest/SKILL.md)
+API impact:
+- Keep existing launch CRUD.
+- Add explicit status transition operation in launches service/route.
+- Reject invalid transitions with 400 and explicit errors.
 
-### Folder Structure Philosophy
-```
-src/
-├── index.ts           # Application entry point and Express setup
-├── routes/            # HTTP layer - one file per resource
-│   ├── rockets.ts     # Rocket endpoints
-│   ├── customers.ts   # Customer endpoints
-│   └── launches.ts    # Launch endpoints
-├── services/          # Business logic - service + unit tests
-│   ├── rocketService.ts
-│   └── rocketService.spec.ts  # Unit tests for rocket service
-├── types/             # Type definitions - one file per domain
-│   ├── rocket.ts
-│   ├── customer.ts
-│   └── launch.ts
-└── utils/             # Shared utilities
-    └── logger.ts
+### 12.2 FR6 Payment and refund processing
 
-tests/                 # End-to-end tests mirror routes
-├── rockets.spec.ts    # Test all rocket scenarios
-├── customers.spec.ts  # Test all customer scenarios
-├── launches.spec.ts   # Test all launch scenarios
-└── smoke.spec.ts      # Basic health checks
-```
+Planned architecture addition:
+- Introduce internal payment adapter abstraction (mock implementation only).
+- Record payment/refund outcome in booking domain metadata.
 
-## Architecture Decisions Record (ADR)
+Behavioral rules:
+- Booking create triggers mock charge attempt.
+- Booking cancellation triggers mock refund policy evaluation.
+- Seat restoration must remain consistent even if payment fails.
 
-### ADR 1: In-Memory Storage Only
-- **Decision**: Use Map-based in-memory storage without database persistence
-- **Status**: Accepted
-- **Context**: This is a training/demo application requiring simple setup without external dependencies. Data persistence is not required; system restarts reset state.
-- **Consequences**: 
-  - ✓ Zero configuration, immediate startup
-  - ✓ No database driver dependencies
-  - ✓ Perfect for demonstrations and learning
-  - ✗ Data lost on restart (acceptable for training)
-  - ✗ Not scalable or production-ready (intentional)
+Brownfield-safe approach:
+- Keep single-process orchestration in booking service.
+- Add compensating logic to preserve launch seat consistency.
+- Avoid introducing external infrastructure.
 
-### ADR 2: Layered Monolithic Architecture
-- **Decision**: Implement a traditional layered architecture with routes, services, and types
-- **Status**: Accepted
-- **Context**: Clear separation of concerns aids learning; small application doesn't require microservices or complex patterns. Educational value in demonstrating standard industry structure.
-- **Consequences**:
-  - ✓ Easy to understand for learners
-  - ✓ Clear separation of concerns
-  - ✓ Testable in isolation
-  - ✓ Scalable to additional resources
-  - ✗ Some boilerplate for simple operations (acceptable trade-off)
+## 13. Architecture Decision Records (Concise ADRs)
 
-### ADR 3: TypeScript Strict Mode with Explicit Types
-- **Decision**: Use strict TypeScript configuration with explicit type definitions for all domain entities
-- **Status**: Accepted
-- **Context**: Demonstrates professional TypeScript practices; catches errors at compile time; serves as educational example.
-- **Consequences**:
-  - ✓ Compile-time type safety
-  - ✓ Excellent IDE support
-  - ✓ Self-documenting code
-  - ✓ Demonstrates best practices
-  - ✗ More verbose than JavaScript (intentional for learning)
+### ADR-01 Layered monolith for clarity
 
-### ADR 4: Express 5 with Native Async Support
-- **Decision**: Use Express 5.x which has native async/await support
-- **Status**: Accepted
-- **Context**: Express 5 simplifies error handling in async routes and is the modern standard.
-- **Consequences**:
-  - ✓ Cleaner async code
-  - ✓ Modern framework version
-  - ✓ Built-in error handling improvements
-  - ✗ Slightly different from older Express tutorials (acceptable)
+Status: Accepted
 
-### ADR 5: Dual Testing Strategy with Playwright and Vitest
-- **Decision**: Use Playwright for E2E API testing AND Vitest for service layer unit testing
-- **Status**: Accepted
-- **Context**: Unit tests ensure code quality by validating business logic during implementation; E2E tests verify acceptance criteria from specifications. Dual approach separates development-time quality assurance from specification verification.
-- **Consequences**:
-  - ✓ Unit tests provide fast feedback during implementation
-  - ✓ E2E tests confirm acceptance criteria are met
-  - ✓ Better code quality through continuous validation
-  - ✓ Specifications verified before deployment
-  - ✗ Two test frameworks to maintain (justified by clear separation of concerns)
-  - ✗ Requires discipline to write appropriate test types for each purpose
+Decision:
+- Keep a single deployable service with routes, services, and types layers.
 
-### ADR 6: No Authentication or Authorization
-- **Decision**: Omit all security layers including authentication, authorization, CORS, and rate limiting
-- **Status**: Accepted
-- **Context**: Training application focused on API design and business logic; security adds complexity that distracts from core learning objectives.
-- **Consequences**:
-  - ✓ Simpler learning experience
-  - ✓ Focus on core concepts
-  - ✓ Faster development and testing
-  - ✗ Not production-ready (by design)
-  - ⚠ Must be clearly documented as demo-only
+Rationale:
+- Maximizes readability and teaching value for backend fundamentals.
 
-### ADR 7: Resource-Based Folder Organization
-- **Decision**: Organize code by technical layer (routes, services, types) rather than by feature
-- **Status**: Accepted
-- **Context**: Small application with few resources; layer-based organization is standard and easier to teach; scales well for adding new resources.
-- **Consequences**:
-  - ✓ Industry-standard pattern
-  - ✓ Clear technical boundaries
-  - ✓ Easy to locate file by type
-  - ✗ Related files are separated (acceptable for small project)
+Consequences:
+- Simple and testable architecture.
+- Limited independent scaling of components.
 
-### ADR 8: Custom Logger Utility Instead of Framework
-- **Decision**: Implement a simple custom logger wrapping console instead of using a logging framework
-- **Status**: Accepted
-- **Context**: Demonstrates utility creation; avoids dependency bloat; console output sufficient for training purposes.
-- **Consequences**:
-  - ✓ No external dependencies
-  - ✓ Simple implementation to understand
-  - ✓ Sufficient for demos
-  - ✗ Limited features compared to Winston/Pino (acceptable trade-off)
+### ADR-02 In-memory Map storage
+
+Status: Accepted
+
+Decision:
+- Use Map-based repositories with incremental IDs.
+
+Rationale:
+- Zero setup, deterministic behavior for workshops.
+
+Consequences:
+- Fast local usage.
+- State loss on restart; no persistence guarantees.
+
+### ADR-03 Validation in services
+
+Status: Accepted
+
+Decision:
+- Concentrate business validation in service layer, not routes.
+
+Rationale:
+- Centralized rule enforcement and reusable logic.
+
+Consequences:
+- Consistent behavior across endpoints.
+- Requires explicit error mapping at route boundary.
+
+### ADR-04 Explicit HTTP contract
+
+Status: Accepted
+
+Decision:
+- Enforce 201/200/204 success and 400/404 error mapping.
+
+Rationale:
+- Predictable API behavior for training and testing.
+
+Consequences:
+- Cleaner E2E assertions.
+- Requires disciplined route helper usage.
+
+### ADR-05 Dual test strategy
+
+Status: Accepted
+
+Decision:
+- Keep Vitest for service unit tests and Playwright for API E2E tests.
+
+Rationale:
+- Combines fast logic feedback with full contract verification.
+
+Consequences:
+- Strong confidence in behavior.
+- Two test frameworks to maintain.
+
+### ADR-06 No auth and no real payments in core scope
+
+Status: Accepted
+
+Decision:
+- Keep security and payment integrations out of production-grade scope.
+
+Rationale:
+- Preserve focus on core domain workflows.
+
+Consequences:
+- Simpler system and onboarding.
+- Not suitable for production deployment.
+
+### ADR-07 FR5 state machine via domain rules
+
+Status: Proposed
+
+Decision:
+- Implement launch lifecycle as explicit transition rules in launch service.
+
+Rationale:
+- Prevent invalid lifecycle jumps and encode policy transparently.
+
+Consequences:
+- Clear domain behavior.
+- Additional validation paths and test matrix.
+
+### ADR-08 FR6 payment adapter with mock gateway
+
+Status: Proposed
+
+Decision:
+- Add payment/refund adapter abstraction with in-process mock implementation.
+
+Rationale:
+- Enables realistic flow without external dependencies.
+
+Consequences:
+- Better training realism.
+- Requires compensation logic to avoid seat/payment inconsistencies.
