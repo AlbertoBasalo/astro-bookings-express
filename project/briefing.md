@@ -22,4 +22,3 @@ In case of cancellation, refunds are issued based on the time of cancellation.
 No database is needed, as data is stored in memory for simplicity.
 No security features are implemented, as the focus is on learning core concepts.
 Payments gateway is simulated with a simple fake that always succeeds.
-
