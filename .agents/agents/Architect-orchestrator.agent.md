@@ -1,5 +1,5 @@
 ---
-name: Architect
+name: Architect 🧑‍💼
 description: Orchestrates PRD analysis, architecture design, and parallel specification drafting through internal worker agents.
 argument-hint: Provide a briefing, PRD, or project context to coordinate analysis, architecture, and specification work.
 model: Auto (copilot)
