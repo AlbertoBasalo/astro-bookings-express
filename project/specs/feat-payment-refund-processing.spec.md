@@ -10,9 +10,9 @@ Booking creation currently reserves seats and calculates price, but does not per
 
 ### User Stories
 
-- As a booking operator, I want to charge a booking during creation so that only financially confirmed bookings are stored.
-- As a booking operator, I want cancellation to trigger a refund so that customers are reimbursed when a booking is canceled.
-- As a system maintainer, I want payment and seat state changes to stay consistent so that launch capacity and financial status never conflict.
+- As a booking operator, I want to **charge a booking during creation** so that only financially confirmed bookings are stored.
+- As a booking operator, I want **cancellation to trigger a refund** so that customers are reimbursed when a booking is canceled.
+- As a system maintainer, I want **payment and seat state changes to stay consistent** so that launch capacity and financial status never conflict.
 
 ## Solution Overview
 

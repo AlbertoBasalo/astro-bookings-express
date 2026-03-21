@@ -12,9 +12,9 @@ Launch operations need a way to schedule future flights for specific rockets wit
 
 ### User Stories
 
-- As a system operator, I want to schedule a launch for a chosen rocket with date, price, and minimum passenger count so that I can open the launch for booking.
-- As a booking system, I want to list and retrieve launch schedules with their pricing and capacity details so that bookings can validate seat availability and fares.
-- As a system operator, I want to update or cancel a launch schedule so that incorrect or outdated launch plans do not remain available.
+- As a system operator, I want to **schedule a launch for a chosen rocket with date, price, and minimum passenger count** so that I can open the launch for booking.
+- As a booking system, I want to **list and retrieve launch schedules with their pricing and capacity details** so that bookings can validate seat availability and fares.
+- As a system operator, I want to **update or cancel a launch schedule** so that incorrect or outdated launch plans do not remain available.
 
 ## Solution Overview
 
