@@ -46,6 +46,16 @@ test.describe('Bookings API - Acceptance Criteria', () => {
     return await response.json();
   }
 
+  async function transitionLaunchStatus(request: any, launchId: string, targetStatus: string) {
+    const response = await request.put(`/launches/${launchId}/status`, {
+      data: {
+        targetStatus
+      }
+    });
+    expect(response.status()).toBe(200);
+    return await response.json();
+  }
+
   test.describe('POST /bookings', () => {
     test('AC1: should create booking with valid data, update available seats, calculate total price, and return 201', async ({ request }) => {
       // Arrange: Create dependencies
@@ -244,6 +254,40 @@ test.describe('Bookings API - Acceptance Criteria', () => {
       expect(fields).toContain('customerEmail');
       expect(fields).toContain('launchId');
       expect(fields).toContain('seats');
+    });
+
+    test('should return 400 when creating bookings for suspended, successful, or cancelled launches', async ({ request }) => {
+      const rocket = await createTestRocket(request, 10);
+      const customer = await createTestCustomer(request);
+
+      const suspendedLaunch = await createTestLaunch(request, rocket.id);
+      await transitionLaunchStatus(request, suspendedLaunch.id, 'confirmed');
+      await transitionLaunchStatus(request, suspendedLaunch.id, 'suspended');
+
+      const successfulLaunch = await createTestLaunch(request, rocket.id);
+      await transitionLaunchStatus(request, successfulLaunch.id, 'confirmed');
+      await transitionLaunchStatus(request, successfulLaunch.id, 'successful');
+
+      const cancelledLaunch = await createTestLaunch(request, rocket.id);
+      await transitionLaunchStatus(request, cancelledLaunch.id, 'cancelled');
+
+      for (const launchId of [suspendedLaunch.id, successfulLaunch.id, cancelledLaunch.id]) {
+        const response = await request.post('/bookings', {
+          data: {
+            customerEmail: customer.email,
+            launchId,
+            seats: 1
+          }
+        });
+
+        expect(response.status()).toBe(400);
+        const error = await response.json();
+        expect(error).toHaveProperty('errors');
+        expect(Array.isArray(error.errors)).toBe(true);
+        const launchError = error.errors.find((item: any) => item.field === 'launchId');
+        expect(launchError).toBeDefined();
+        expect(launchError.message).toContain('Launch is not open for new bookings');
+      }
     });
   });
 
