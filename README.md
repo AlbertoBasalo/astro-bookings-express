@@ -90,6 +90,7 @@ The server listens on `http://localhost:3000` and responds with a small JSON pay
 - `GET /launches/:id` - Retrieve a specific launch by ID
 - `POST /launches` - Create a new launch (requires: rocketId, launchDateTime, price, minPassengers)
 - `PUT /launches/:id` - Update an existing launch
+- `PUT /launches/:id/status` - Transition a launch lifecycle state
 - `DELETE /launches/:id` - Delete a launch
 
 **Customers**

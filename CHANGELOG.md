@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-03-21
+
+### Added
+- Launch lifecycle state management (FR5)
+  - Initial launch state defaults to `scheduled`
+  - Explicit transition operation for lifecycle updates with validation
+  - Transition tracking with `statusUpdatedAt`
+- Booking eligibility rules tied to lifecycle state
+  - New bookings are allowed only for `scheduled` and `confirmed` launches
+  - New bookings are rejected for `suspended`, `successful`, and `cancelled` launches
+- Unit and E2E coverage for lifecycle transitions and booking restrictions
+
+### Changed
+- PRD, ADD, and launch lifecycle spec/plan statuses aligned to release state
+
+### Fixed
+- Removed lifecycle documentation drift where `scheduled -> suspended` appeared in architecture notes
+
 ## [0.5.0] - 2026-03-10
 
 ### Added

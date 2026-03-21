@@ -1,3 +1,5 @@
+export type LaunchStatus = 'scheduled' | 'confirmed' | 'suspended' | 'successful' | 'cancelled';
+
 export interface Launch {
   id: string;
   rocketId: string;
@@ -5,6 +7,8 @@ export interface Launch {
   price: number;
   minPassengers: number;
   availableSeats: number;
+  status: LaunchStatus;
+  statusUpdatedAt: string;
 }
 
 export interface CreateLaunchRequest {
@@ -16,6 +20,11 @@ export interface CreateLaunchRequest {
 
 export interface UpdateLaunchRequest extends Partial<Omit<CreateLaunchRequest, 'rocketId'>> {
   availableSeats?: number;
+}
+
+export interface TransitionLaunchRequest {
+  targetStatus: LaunchStatus;
+  reason?: string;
 }
 
 export interface ValidationError {

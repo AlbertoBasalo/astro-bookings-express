@@ -6,6 +6,7 @@ import { launchService } from './launchService.js';
 const BOOKING_NOT_FOUND_ERROR = 'Booking not found';
 const CUSTOMER_NOT_FOUND_ERROR = 'Customer not found';
 const LAUNCH_NOT_FOUND_ERROR = 'Launch not found';
+const LAUNCH_STATUS_NOT_BOOKABLE_ERROR = 'Launch is not open for new bookings';
 const NOT_ENOUGH_SEATS_ERROR = 'Not enough available seats';
 const MIN_SEATS = 1;
 const MAX_SEATS = 10;
@@ -114,6 +115,8 @@ class BookingService {
       const launch = launchService.getLaunchById(data.launchId.trim());
       if (!launch) {
         errors.push({ field: 'launchId', message: LAUNCH_NOT_FOUND_ERROR });
+      } else if (!launchService.isLaunchBookable(launch.status)) {
+        errors.push({ field: 'launchId', message: LAUNCH_STATUS_NOT_BOOKABLE_ERROR });
       }
     }
 

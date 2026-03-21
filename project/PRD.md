@@ -46,7 +46,7 @@ The product demonstrates practical backend architecture and API design patterns 
 ### FR5 Launch Lifecycle State Management
 - Description: Launches can move through explicit business states such as scheduled, confirmed, successful, cancelled, or suspended with transition rules.
 - Priority: Medium
-- Status: NotStarted
+- Status: Implemented
 
 ### FR6 Payment and Refund Processing
 - Description: Booking creation triggers payment handling through a mock gateway, and cancellation supports refund rules based on timing.
@@ -76,6 +76,5 @@ The product demonstrates practical backend architecture and API design patterns 
 - Status: Implemented
 
 ## Current Inconsistencies to Track
-- Lifecycle behavior is documented as a core requirement, but there is no launch status field, no lifecycle transition endpoints, and no lifecycle business logic currently implemented.
 - Payment and refund behavior is documented in product docs, but there is no payment gateway abstraction, no billing workflow, and no refund workflow in the current implementation.
 - Capacity validation was previously marked as not started in the PRD, but it is already implemented across launch and booking flows.
