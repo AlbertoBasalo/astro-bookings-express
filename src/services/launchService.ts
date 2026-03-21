@@ -1,10 +1,10 @@
 import type {
-  CreateLaunchRequest,
-  Launch,
-  LaunchStatus,
-  TransitionLaunchRequest,
-  UpdateLaunchRequest,
-  ValidationError,
+    CreateLaunchRequest,
+    Launch,
+    LaunchStatus,
+    TransitionLaunchRequest,
+    UpdateLaunchRequest,
+    ValidationError,
 } from '../types/launch.js';
 import { logger } from '../utils/logger.js';
 import { rocketService } from './rocketService.js';
