@@ -61,7 +61,6 @@ Implemented and stable:
 - Unit tests (Vitest) + E2E tests (Playwright).
 
 Not implemented yet:
-- Launch lifecycle state machine (FR5).
 - Payment and refund processing behavior (FR6).
 
 ## 3. Architecture Drivers
@@ -232,7 +231,7 @@ Implication:
 
 ### 12.1 FR5 Launch lifecycle states
 
-Planned model extension:
+Implemented model extension:
 - Add launchStatus field with states:
   - scheduled
   - confirmed
@@ -240,8 +239,8 @@ Planned model extension:
   - cancelled
   - suspended
 
-Planned transition policy (service-enforced):
-- scheduled -> confirmed | cancelled | suspended
+Implemented transition policy (service-enforced):
+- scheduled -> confirmed | cancelled
 - confirmed -> successful | cancelled | suspended
 - suspended -> confirmed | cancelled
 - successful -> terminal

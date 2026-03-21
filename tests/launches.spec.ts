@@ -482,4 +482,121 @@ test.describe('Launches API - Acceptance Criteria', () => {
       expect(error.error).toContain('Launch');
     });
   });
+
+  test.describe('PUT /launches/:id/status lifecycle transitions', () => {
+    async function createLifecycleLaunch(request: any) {
+      const rocket = await createTestRocket(request, 10);
+      const launchResponse = await request.post('/launches', {
+        data: {
+          rocketId: rocket.id,
+          launchDateTime: getFutureLaunchDate(3),
+          price: 55000,
+          minPassengers: 2
+        }
+      });
+
+      expect(launchResponse.status()).toBe(201);
+      const launch = await launchResponse.json();
+      return { rocket, launch };
+    }
+
+    async function transitionLaunchStatus(request: any, launchId: string, targetStatus: string) {
+      return request.put(`/launches/${launchId}/status`, {
+        data: { targetStatus }
+      });
+    }
+
+    test('should create launches with initial scheduled status and include lifecycle fields in list/detail responses', async ({ request }) => {
+      const { launch } = await createLifecycleLaunch(request);
+
+      expect(launch).toHaveProperty('status', 'scheduled');
+      expect(launch).toHaveProperty('statusUpdatedAt');
+
+      const listResponse = await request.get('/launches');
+      expect(listResponse.status()).toBe(200);
+      const launches = await listResponse.json();
+      const listedLaunch = launches.find((item: any) => item.id === launch.id);
+      expect(listedLaunch).toBeDefined();
+      expect(listedLaunch).toHaveProperty('status', 'scheduled');
+      expect(listedLaunch).toHaveProperty('statusUpdatedAt');
+
+      const detailResponse = await request.get(`/launches/${launch.id}`);
+      expect(detailResponse.status()).toBe(200);
+      const detailedLaunch = await detailResponse.json();
+      expect(detailedLaunch).toHaveProperty('status', 'scheduled');
+      expect(detailedLaunch).toHaveProperty('statusUpdatedAt');
+    });
+
+    test('should allow valid lifecycle transitions and persist status with updated timestamp', async ({ request }) => {
+      const { launch } = await createLifecycleLaunch(request);
+      const previousTimestamp = launch.statusUpdatedAt;
+
+      const transitionResponse = await transitionLaunchStatus(request, launch.id, 'confirmed');
+      expect(transitionResponse.status()).toBe(200);
+      const updatedLaunch = await transitionResponse.json();
+
+      expect(updatedLaunch).toHaveProperty('status', 'confirmed');
+      expect(updatedLaunch).toHaveProperty('statusUpdatedAt');
+      expect(Date.parse(updatedLaunch.statusUpdatedAt)).toBeGreaterThanOrEqual(Date.parse(previousTimestamp));
+
+      const detailResponse = await request.get(`/launches/${launch.id}`);
+      expect(detailResponse.status()).toBe(200);
+      const persistedLaunch = await detailResponse.json();
+
+      expect(persistedLaunch).toHaveProperty('status', 'confirmed');
+      expect(persistedLaunch.statusUpdatedAt).toBe(updatedLaunch.statusUpdatedAt);
+    });
+
+    test('should return 400 for an invalid transition from current status', async ({ request }) => {
+      const { launch } = await createLifecycleLaunch(request);
+
+      const response = await transitionLaunchStatus(request, launch.id, 'successful');
+
+      expect(response.status()).toBe(400);
+      const error = await response.json();
+      expect(error).toHaveProperty('errors');
+      expect(Array.isArray(error.errors)).toBe(true);
+      const statusError = error.errors.find((item: any) => item.field === 'targetStatus');
+      expect(statusError).toBeDefined();
+      expect(statusError.message).toContain('Invalid launch status transition');
+    });
+
+    test('should return 404 when transitioning status of a non-existent launch', async ({ request }) => {
+      const response = await transitionLaunchStatus(request, 'non-existent-launch-id', 'confirmed');
+
+      expect(response.status()).toBe(404);
+      const error = await response.json();
+      expect(error).toHaveProperty('error');
+      expect(error.error).toContain('Launch not found');
+    });
+
+    test('should reject any further transitions after launch reaches successful state', async ({ request }) => {
+      const { launch } = await createLifecycleLaunch(request);
+
+      const toConfirmed = await transitionLaunchStatus(request, launch.id, 'confirmed');
+      expect(toConfirmed.status()).toBe(200);
+
+      const toSuccessful = await transitionLaunchStatus(request, launch.id, 'successful');
+      expect(toSuccessful.status()).toBe(200);
+
+      const invalidAfterTerminal = await transitionLaunchStatus(request, launch.id, 'cancelled');
+      expect(invalidAfterTerminal.status()).toBe(400);
+      const error = await invalidAfterTerminal.json();
+      const statusError = error.errors.find((item: any) => item.field === 'targetStatus');
+      expect(statusError.message).toContain('successful -> cancelled');
+    });
+
+    test('should reject any further transitions after launch reaches cancelled state', async ({ request }) => {
+      const { launch } = await createLifecycleLaunch(request);
+
+      const toCancelled = await transitionLaunchStatus(request, launch.id, 'cancelled');
+      expect(toCancelled.status()).toBe(200);
+
+      const invalidAfterTerminal = await transitionLaunchStatus(request, launch.id, 'confirmed');
+      expect(invalidAfterTerminal.status()).toBe(400);
+      const error = await invalidAfterTerminal.json();
+      const statusError = error.errors.find((item: any) => item.field === 'targetStatus');
+      expect(statusError.message).toContain('cancelled -> confirmed');
+    });
+  });
 });
