@@ -43,8 +43,11 @@ Generate or update the project briefing document.
 ### Step 3: Generate or update the briefing document
 - [ ] Create or update the briefing document at `{Project_Folder}/briefing.md` with:
   - A summary of the project, its objectives, and key information.
-  - Sacrifice grammatical correctness for brevity and clarity.
-  - Keep it under 25 sentences, with each sentence less than 80 characters.
+  - Focus on features rather than implementation details.
+  - Make it human-friendly to grasp the main ideas quickly.
+  - Write simple paragraphs of less than 3 sentences, 
+  - Write sentences less than 80 characters each.
+  - Keep it really short under 25 lines. 
 
 ## Output checklist
 

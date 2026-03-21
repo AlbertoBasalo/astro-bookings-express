@@ -1,77 +1,90 @@
 # Agents Instructions
 
+- **Root_Folder**: /
+- **Agents_Folder**: .agents
+- **Agents_file**: AGENTS.md
+- **Project_Folder**: project
+
 ## Product Overview
-- AstroBookings is a space travel booking backend API for training.
-- Rockets managed via REST CRUD endpoints with business logic validation.
+
+AstroBookings is a training API for space travel booking.
+
+- It provides rockets, launches, customers, and bookings REST resources.
 
 ## Technical Implementation
 
 ### Tech Stack
-- **Language**: TypeScript 5.9.3 (strict, ESM)
-- **Framework**: Express 5.2.1
-- **Database**: In-memory (Map-based)
-- **Security**: None (demo/training only)
-- **Testing E2E**: Playwright 1.57.0
-- **Testing Unit**: Vitest 3.1.0
-- **Logging**: Custom console logger
+
+- **Language**: TypeScript 5.9 (strict ESM)
+- **Framework**: Express 5
+- **Database**: In-memory Map storage
+- **Security**: Minimal, training scope only
+- **Testing**: Vitest (unit), Playwright (E2E)
+- **Logging**: Project logger utilities
 
 ### Development workflow
 
 ```bash
-npm install         # Set up project
-npm run build       # Compile TypeScript
-npm run dev         # Run development server (tsx)
-npm run start       # Run production server
-npm run test        # Execute Playwright E2E tests
-npm run test:unit   # Execute Vitest unit tests
-npm run test:dev    # Run Vitest in watch mode
-npm run test:all    # Run all tests (unit + E2E)
-npm run typecheck   # Type-check without build
+# Set up the project
+npm install
+# Build/Compile the project
+npm run build
+# Run the project
+npm run dev
+npm run start
+# Test the project
+npm run test:unit
+npm run test
+npm run test:all
+npm run typecheck
+# Deploy the project
+npm run start
 ```
 
 ### Folder structure
+
 ```text
-.                         # Project root  
-├── .agents/              # Primitive agent files (skills, specs, etc.)
-├── AGENTS.md             # This file with instructions
-├── ADD.md                # Architecture design doc
-├── PRD.md                # Product requirements doc
-├── src/                  # Source code
-│   ├── index.ts          # Entry point
-│   ├── routes/           # One file per resource
-│   ├── services/         # One service per domain (with *.spec.ts unit tests)
-│   ├── types/            # One type file per domain
-│   └── utils/            # Shared utilities
-└── tests/                # E2E tests mirror routes
+.                         # Project root
+├── AGENTS.md             # This file with instructions for AI agents
+├── .agents/              # Agents related files (skills, prompts)
+│   ├── prompts/          # Reusable prompts directory
+│   └── skills/           # Custom agent skills
+├── project/              # Project related files (specs, plans, docs)
+│   └── specs/            # Specifications and plans
+├── CHANGELOG.md          # Project history and updates
+├── README.md             # Human friendly project overview
+├── src/                  # Source code folder
+├── tests/                # Test files
+└── other_files/          # Other relevant files and folders
 ```
 
-### Implementation Rules
-1. **Architecture**: Layered design - routes (HTTP) → services (logic) → types (models)
-2. **Naming**: `resources.ts`, `resourceService.ts`, `resource.ts` pattern
-3. **Types**: Explicit DTOs, no `any`, strict TypeScript
-4. **Services**: Class with Map storage, auto-increment IDs, throw on validation errors
-5. **HTTP Status**: 201 (created), 200 (success), 204 (deleted), 400 (validation), 404 (not found)
-6. **Validation**: Return all errors at once, validate required/empty/ranges/enums
-7. **Logging**: Use `logger.info/error/warn(component, message, data?)`
-8. **Testing**: Unit tests (`*.spec.ts`) ensure code quality during implementation; E2E tests (`tests/*.spec.ts`) verify acceptance criteria
-9. **Security**: None - training only, clearly documented
-
 ## Environment
+
+- **OS dev**: Windows
+- **Terminal**: bash
+- **Git remote**: https://github.com/AlbertoBasalo/astro-bookings-express.git
+- **Default branch**: main
+
+## Behavior Guidelines
+
 - Code and documentation must be in English.
 - Chat responses must be in the language of the user prompt.
-- This is a Windows environment using git bash terminal.
-- Repo: `https://github.com/AlbertoBasalo/astro-bookings-express`
-- Server runs on `http://localhost:3000` (configurable via PORT env var).
-- Node.js version >=18.18 required.
+- Sacrifice grammar for conciseness when needed.
+- Keep layered flow: routes to services to types.
+- Validate all inputs in services and return full error lists.
+- Use explicit DTO types and avoid any.
+- Keep service storage in Map with incremental ids.
+- Return 201 create, 200 read or update, and 204 delete.
+- Return 400 for validation failures and 404 for missing records.
+- Use logger info, warn, and error methods for service events.
+- Do not revert unrelated local changes.
 
-### Naming Conventions
+## Naming Conventions
 
-Use slugs with hyphens for identifiers or non-code file names.
+Use slugs with hyphens for identifiers and non code file names.
 
-| Spec        | GitHub Label  | Git Branch    | Commit  |
-|-------------|---------------|---------------|---------|
-| feat-<slug> | enhancement   | feat/<slug>   | feat:   |
-| bug-<slug>  | bug           | fix/<slug>    | fix:    |
-| chore-<slug>| chore         | chore/<slug>  | chore:  |
+Prefix specifications, branches, and commit messages with:
 
-Default git branch is `main`.
+- feat: new features or significant changes.
+- fix: bug fixes or minor improvements.
+- chore: routine tasks and maintenance.
