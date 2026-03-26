@@ -384,7 +384,7 @@ Consequences:
 
 ### ADR-09 Global CORS enablement
 
-Status: Proposed
+Status: Accepted
 
 Decision:
 - Enable CORS globally for all routes and methods, including preflight OPTIONS handling.

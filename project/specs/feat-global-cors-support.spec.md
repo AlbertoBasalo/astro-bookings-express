@@ -1,5 +1,7 @@
 # Feature Specification: Global CORS Support
 
+> Status: Implemented
+
 ## 1. Problem Definition
 
 Browser clients cannot reliably consume AstroBookings endpoints from a different origin unless the API explicitly supports CORS.
