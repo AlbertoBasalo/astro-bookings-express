@@ -36,6 +36,7 @@ It reflects current implementation reality and the target evolution for pending 
     - [ADR-06 No auth and no real payments in core scope](#adr-06-no-auth-and-no-real-payments-in-core-scope)
     - [ADR-07 FR5 state machine via domain rules](#adr-07-fr5-state-machine-via-domain-rules)
     - [ADR-08 FR6 payment adapter with mock gateway](#adr-08-fr6-payment-adapter-with-mock-gateway)
+    - [ADR-09 Global CORS enablement](#adr-09-global-cors-enablement)
 
 ## 1. Purpose and Scope
 
@@ -380,3 +381,17 @@ Rationale:
 Consequences:
 - Better training realism.
 - Requires compensation logic to avoid seat/payment inconsistencies.
+
+### ADR-09 Global CORS enablement
+
+Status: Proposed
+
+Decision:
+- Enable CORS globally for all routes and methods, including preflight OPTIONS handling.
+
+Rationale:
+- Browser-based tools and demos require cross-origin access across all resource endpoints.
+
+Consequences:
+- Improved interoperability for frontend clients and API explorers.
+- Broader origin access surface, acceptable for current training scope.

@@ -75,6 +75,11 @@ The product demonstrates practical backend architecture and API design patterns 
 - Priority: High
 - Status: Implemented
 
+### TR5 Global CORS Compatibility
+- Description: Enable CORS for all API endpoints and HTTP methods, including support for preflight OPTIONS requests, so browser-based clients can call the API cross-origin.
+- Priority: Medium
+- Status: Planned
+
 ## Current Inconsistencies to Track
 - Payment and refund behavior is documented in product docs, but there is no payment gateway abstraction, no billing workflow, and no refund workflow in the current implementation.
 - Capacity validation was previously marked as not started in the PRD, but it is already implemented across launch and booking flows.
